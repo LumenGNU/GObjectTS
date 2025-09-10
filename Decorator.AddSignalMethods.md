@@ -6,6 +6,13 @@
 
 `@AddSignalMethods` решает задачу добавления событийной модели в обычные TypeScript классы с полной типизацией и совместимостью с сигнальной системой GObject. Подходит для бизнес-логики, контроллеров, сервисных классов и других компонентов, которым нужна событийная архитектура.
 
+## Требования
+
+**Обязательные зависимости:**
+- @girs типы версии `4.0.0-beta.25` или выше
+
+> Важно: Более ранние версии @girs (до 4.0.0-beta.25) не содержат определения типов для GObject.SignalCallback, что приведет к ошибкам типизации при использовании.
+
 ## Синтаксис
 
 ~~~typescript
@@ -14,7 +21,7 @@ import {
     SignalMethods,
 } from 'GObjectTS/SignalMethods.ts';
 
-\@AddSignalMethods
+@AddSignalMethods
 class MyClass {
     declare emit: SignalMethods<MySignals>['emit'];
     declare connect: SignalMethods<MySignals>['connect'];
@@ -310,13 +317,13 @@ const SignalPropagate = {
 
 Отличия от GObject сигналов
 
-Аспект	            @AddSignalMethods	GObject сигналы
+Аспект	          | @AddSignalMethods | GObject сигналы
 ------------------|-------------------|------------------
-Первый параметр	    globalThis	        sender объект
-Регистрация	        Не требуется	    Через GObject.registerClass
-Типизация
-Наследование	    Нативные классы	    GObject классы
-Производительность	Легковесная	        Оптимизированная C реализация
+Первый параметр	  | globalThis	      | sender объект
+Регистрация	      | Не требуется	  | Через GObject.registerClass
+Типизация         | Есть              | Частично
+Наследование	  | Нативные классы	  | GObject классы
+Производительность| Легковесная	      | Оптимизированная C реализация
 
 ### Рекомендации
 

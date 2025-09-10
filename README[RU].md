@@ -136,7 +136,60 @@ Performance-критичные случаи
 
 ## Настройка TypeScript
 
-TODO: конфигурация tsconfig.json для поддержки декораторов (experimentalDecorators), настройка среды разработки, примеры конфигурации для разных сценариев использования.
+
+### Требования
+
+- **TypeScript** с поддержкой экспериментальных декораторов
+- **@girs типы** версии `4.0.0-beta.25` или выше (для корректной работы типизации сигналов)
+
+### Пример конфигурации tsconfig.json
+
+~~~json
+{
+  "compilerOptions": {
+    "diagnostics": false,
+    "incremental": true,
+    "allowUnreachableCode": false,
+    "allowJs": false,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "lib": [
+      "ES2022"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "removeComments": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": [
+      "@girs/adw-1",
+      "@girs/gdk-4.0",
+      "@girs/gio-2.0",
+      "@girs/giounix-2.0",
+      "@girs/gjs",
+      "@girs/gjs/dom",
+      "@girs/glib-2.0",
+      "@girs/glibunix-2.0",
+      "@girs/gobject-2.0",
+      "@girs/gtk-4.0",
+      "@girs/pango-1.0"
+    ]
+  }
+}
+~~~
+
+TODO: настройка среды разработки, примеры конфигурации для разных сценариев использования.
 
 
 ## Экосистема
