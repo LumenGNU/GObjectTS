@@ -540,6 +540,74 @@ class MusicPlayer extends Gtk.Window {
 - Типизацию там где это возможно
 - Простоту рефакторинга и поддержки
 
+### @AddSignalMethods
+
+Декоратор для интеграции сигнальной системы GJS в нативные TypeScript классы. Предоставляет обертку над `Signals.addSignalMethods` для использования сигнальной системы в классах, которые не наследуют от `GObject.Object`.
+
+~~~typescript
+// Определяем сигнатуры сигналов
+interface MyWorkerSignals {
+    'started': () => boolean;
+    'progress': (completed: number, total: number) => boolean;
+    'finished': (result: string) => boolean;
+}
+
+@AddSignalMethods
+class MyWorker {
+    // Типизированные методы сигнальной системы
+    declare emit: SignalMethods<MyWorkerSignals>['emit'];
+    declare connect: SignalMethods<MyWorkerSignals>['connect'];
+    declare connectAfter: SignalMethods<MyWorkerSignals>['connectAfter'];
+    declare disconnect: SignalMethods<MyWorkerSignals>['disconnect'];
+    declare disconnectAll: SignalMethods<MyWorkerSignals>['disconnectAll'];
+    declare signalHandlerIsConnected: SignalMethods<MyWorkerSignals>['signalHandlerIsConnected'];
+
+    start_work() {
+        this.emit('started');
+        
+        for (let i = 0; i <= 100; i += 10) {
+            this.emit('progress', i, 100);
+        }
+        
+        this.emit('finished', 'success');
+    }
+}
+
+// Использование
+const worker = new MyWorker();
+
+worker.connect('started', () => {
+    console.log('Работа началась');
+    return SignalPropagate.CONTINUE;
+});
+
+worker.connect('progress', (_globalThis, completed: number, total: number) => {
+    console.log(`Прогресс: ${completed}/${total}`);
+    
+    if (completed >= 50) {
+        return SignalPropagate.STOP; // Остановить дальнейшую эмиссию
+    }
+    
+    return SignalPropagate.CONTINUE;
+});
+~~~
+
+**Особенности:**
+- Полная типизация сигналов с автодополнением IDE
+- Совместимость с сигнальной системой GObject
+- Управление распространением через `SignalPropagate.CONTINUE`/`STOP`
+- Автоматическое управление подключениями/отключениями
+
+**Применение:** К нативным TypeScript классам, которые не наследуют от `GObject.Object`, но нуждаются в сигнальной системе.
+
+**Утилитарные типы:**
+- `SignalMethods<T>` - типизированный интерфейс для всех методов сигнальной системы
+- `SignalPropagate` - константы для управления распространением сигналов
+
+**Когда использовать:** Для бизнес-логики, контроллеров, сервисных классов, которым нужна событийная модель, но нет необходимости наследовать от GObject.
+
+[Декоратор @AddSignalMethods](Decorator.AddSignalMethods.md)
+
 
 ## TODO
 
