@@ -1,21 +1,21 @@
-# GObjectTS - TypeScript Декораторы
+# GObjectTS - TypeScript Decorators
 
-> В первую очередь рассчитан на Gtk4.
+> Primarily designed for Gtk4.
 
-> Состояние: Эксперимент, который уже можно использовать для реальных задач.
+> Status: Experimental, but already usable for real projects.
 
-Набор **TypeScript** декораторов для упрощения работы с GObject.registerClass в GJS приложениях.
+A set of **TypeScript** decorators to simplify working with GObject.registerClass in GJS applications.
 
 
-## Что это такое
+# What is this
 
-Декораторы представляют собой **синтаксический сахар** для регистрации GObject классов в GJS/GTK приложениях. Вместо явного вызова GObject.registerClass() с объектом метаданных, декораторы позволяют использовать более декларативный подход через аннотации.
+Decorators are **syntactic sugar** for registering GObject classes in GJS+GTK applications. Instead of explicit calls to [`GObject.registerClass()`](https://gjs-docs.gnome.org/gjs/overrides.md#gobject-registerclass) with metadata objects, decorators allow using a more declarative approach through annotations.
 
-Создание кастомных GTK виджетов в GJS требует много вспомогательного кода - регистрация свойств, сигналов, template привязок через `GObject.registerClass()`.
+Creating custom GTK widgets in GJS requires a lot of boilerplate code - registering properties, signals, template bindings through `GObject.registerClass()`.
 
-Этот набор TypeScript декораторов, которые превращают регистрацию GObject классов в простые аннотации прямо над полями и методами.
+This is a set of TypeScript decorators that transform GObject class registration into simple annotations directly above fields and methods.
 
-**Традиционный подход**:
+**Traditional approach**:
 
 ~~~typescript
 class MyWidget extends Gtk.Widget {
@@ -34,7 +34,7 @@ class MyWidget extends Gtk.Widget {
 }
 ~~~
 
-**С декораторами**:
+**With decorators**:
 
 ~~~typescript
 @Widget({ GTypeName: 'MyWidget' })
@@ -58,93 +58,126 @@ class MyWidget extends Gtk.Widget {
 }
 ~~~
 
-### Это для вас, если:
-- Создаёте много кастомных GTK виджетов
-- Хотите современный TypeScript код вместо пухлого GObject API
-- Цените читаемость и простоту рефакторинга
-
-### Это НЕ для вас, если:
-- Нужна динамическая регистрация классов во время выполнения
-- Работаете с performance-критичными библиотеками низкого уровня
-- Предпочитаете прямые вызовы без дополнительных абстракций
-- Не можете использовать experimentalDecorators в своем проекте
-
-### Зачем нужны
-
-Улучшение читаемости кода
-
-- Метаданные класса находятся рядом с соответствующими элементами
-- Меньше вспомогательного кода, фокус на бизнес логике приложения
-- Более интуитивный синтаксис для разработчиков, знакомых с современными фреймворками
-
-Упрощение рефакторинга
-
-- Изменения в свойствах и сигналах локализованы
-- Меньше риска рассинхронизации метаданных и реализации
+### This is for you if:
+- You create many custom GTK widgets
+- You want modern TypeScript code instead of verbose GObject API
+- You value readability and easier refactoring
 
 
-### Для чего НЕ подходят
-
-Динамическая регистрация классов
-
-- Декораторы применяются на этапе компиляции/загрузки модуля
-- Не подходят для случаев, когда метаданные класса определяются во время выполнения
-
-Сложные случаи регистрации
-
-- Условная регистрация свойств/сигналов
-- Динамическое формирование GTypeName
-- Сложная логика инициализации, требующая доступа к runtime информации
-
-Performance-критичные случаи
-
-- Дополнительный слой абстракции может влиять на производительность
-- Для библиотек низкого уровня лучше использовать прямые вызовы
+### This is NOT for you if:
+- You need dynamic class registration at runtime
+- You work with performance-critical low-level libraries
+- You prefer direct calls without additional abstractions
+- You cannot use `experimentalDecorators` in your project
 
 
-### Когда полезны
+### Why needed
 
-Новые проекты на TypeScript
+**Code readability improvement**
+- Class metadata is located next to corresponding elements
+- Less boilerplate code, focus on application business logic
+- More intuitive syntax for developers familiar with modern frameworks
 
-- Более современный стек разработки
-- Приоритет на удобной поддержке кода
+**Prototyping and rapid development**
+- Reduced time spent writing boilerplate code
+- Focus on business logic rather than technical registration details
+- Creating reusable components
 
-Большие кодовые базы
+**Simplified refactoring**
+- Changes in properties and signals are localized
+- Less risk of metadata and implementation desynchronization
+- More modern development stack
+- Priority on convenient code maintenance
 
-- Множество кастомных виджетов
-- Сложная иерархия классов
-- Необходимость в консистентности кода
-
-Прототипирование и быстрая разработка
-
-- Сокращение времени на написание вспомогательного кода
-- Фокус на бизнес-логике, а не на технических деталях регистрации
-- Создание пере используемых компонентов
-
-Декораторы - это удобный инструмент для улучшения developer experience в GJS+Gtk проектах, но они требуют понимания их ограничений и правильной настройки окружения разработки.
-
-
-## Совместимость
-
-Поскольку это — **синтаксический сахар** поверх стандартного `GObject.registerClass()`, Вы можете:
-- Использовать декораторы в новых классах, оставив старые как есть
-- Постепенно мигрировать существующий код
-- Комбинировать подходы в разных частях проекта
-
-**Важно:** Не смешивайте декораторы и `GObject.registerClass()` в пределах одного класса - выберите один подход для каждого конкретного случая.
+**Large codebases**
+- Multiple custom widgets
+- Complex class hierarchies
+- Need for code consistency
 
 
-## Настройка TypeScript
+### What they are NOT suitable for
 
-TODO: конфигурация tsconfig.json для поддержки декораторов (experimentalDecorators), настройка среды разработки, примеры конфигурации для разных сценариев использования.
+**Dynamic class registration**
+- Decorators are applied at compilation/module loading stage
+- Not suitable for cases where class metadata is determined at runtime
+
+**Complex registration cases**
+- Conditional registration of properties/signals
+- Dynamic GTypeName formation
+- Complex initialization logic requiring access to runtime information
+
+**Performance-critical cases**
+- Additional abstraction layer may affect performance
+- For low-level libraries, direct calls are better
+
+Decorators are a convenient tool for improving developer experience in GJS+Gtk projects, but they require understanding their limitations and proper development environment setup.
 
 
-## Экосистема
+## Compatibility
+
+Since this is **syntactic sugar** over standard [`GObject.registerClass()`](https://gjs-docs.gnome.org/gjs/overrides.md#gobject-registerclass), you can:
+- Use decorators in new classes while leaving old ones as they are
+- Gradually migrate existing code
+- Combine approaches in different parts of the project
+
+**Important:** Don't mix decorators and `GObject.registerClass()` within the same class - choose one approach for each specific case.
+
+
+## TypeScript Setup
+
+
+### Requirements
+
+- **TypeScript** with experimental decorators support
+- **@girs types** version `4.0.0-beta.25` or higher (for proper signal typing)
+
+
+### Example tsconfig.json configuration
+
+~~~json
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "lib": [
+      "ES2022"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": [
+      "@girs/adw-1",
+      "@girs/gdk-4.0",
+      "@girs/gio-2.0",
+      "@girs/giounix-2.0",
+      "@girs/gjs",
+      "@girs/gjs/dom",
+      "@girs/glib-2.0",
+      "@girs/glibunix-2.0",
+      "@girs/gobject-2.0",
+      "@girs/gtk-4.0",
+      "@girs/pango-1.0"
+    ]
+  }
+}
+~~~
+
+TODO
+
+
+## Ecosystem
 
 
 ### @Class
 
-Декоратор для регистрации GObject классов.
+Decorator for registering GObject classes. Registers a GObject class using configuration collected from other decorators.
 
 ~~~typescript
 @Class({
@@ -156,20 +189,21 @@ class MyCustomObject extends GObject.Object {
 }
 ~~~
 
-Собирает конфигурацию из декораторов:
-- `@Property`, `@Property.*`
+Collects configuration from decorators:
+- `@Property`, 
+- `@Property.*`
 - `@Signals`
 
-**Применение:** К классам, наследующим от `GObject.Object`.
+**Usage:** For classes inheriting from `GObject.Object`.
 
-**Важно:** Должен быть последним декоратором в цепочке декораторов класса (сверху).
+**Important:** Must be the last decorator in the class decorator chain (on top).
 
-[Декоратор @Class](Decoretor.Class.md)
+[Decorator @Class](Decorator.Class.md)
 
 
 ### @Widget
 
-Специализированный декоратор для `Gtk.Widget` классов. Автоматически настраивает виджет-специфичные параметры. Регистрирует GObject класс и настраивает виджет, используя метаинформацию, собранную другими декораторами.
+Specialized decorator for `Gtk.Widget` classes. Automatically configures widget-specific parameters. Registers a GObject class and configures the widget using configuration collected from other decorators.
 
 ~~~typescript
 @Widget('MyButton')
@@ -178,23 +212,24 @@ class MyButton extends Gtk.Button {
 }
 ~~~
 
-Собирает конфигурацию из декораторов:
+Collects configuration from decorators:
 - `@Widget.Template`
+- `@Property`
 - `@Property.*`
 - `@Signals`
 - `@Action.*`
 - `@Styling`
 
-**Применение:** К классам, наследующим от `Gtk.Widget`.
+**Usage:** For classes inheriting from `Gtk.Widget`.
 
-**Важно:** Должен быть последним декоратором в цепочке декораторов класса (сверху). Не совместим с декоратором `@Class`.
+**Important:** Must be the last decorator in the class decorator chain (on top). Not compatible with `@Class` decorator.
 
-[Декоратор @Widget](Decorator.Widget.md)
+[Decorator @Widget](Decorator.Widget.md)
 
 
 ### @Widget.Template
 
-Декоратор для прикрепления `Gtk.Builder` templates.
+Decorator for attaching `Gtk.Builder` templates.
 
 ~~~typescript
 @Widget()
@@ -212,21 +247,21 @@ class MainWindow extends Gtk.ApplicationWindow {
         <!-- ... -->
     </template>
 </interface>
-`)  // Встраивание шаблона в код модуля кастомного виджета
-    // позволяет использовать его как полноценный самостоятельный компонент
+`)  // Embedding template in custom widget module code
+    // allows using it as a full standalone component
 class MainWindow extends Gtk.ApplicationWindow {
     ...
 }
 ~~~
 
-**Применение:** К классам, наследующим от `Gtk.Widget`.
+**Usage:** For classes inheriting from `Gtk.Widget`.
 
-[Декоратор @Widget.Template](Decorator.Widget.Template.md)
+[Decorator @Widget.Template](Decorator.Widget.Template.md)
 
 
 ### @Template.Child / @Template.Object
 
-Связывают поля с дочерними элементами из template.
+Bind fields with child elements from template.
 
 ~~~typescript
 @Widget()
@@ -239,34 +274,34 @@ class MainWindow extends Gtk.ApplicationWindow {
     @Template.Child
     declare my_button: Gtk.Button;
 
-    @Template.Object  // псевдоним для @Template.Child
+    @Template.Object  // alias for @Template.Child
     declare size_group: Gtk.SizeGroup;
 
-    @Template.Child // ищет id="my_button"
+    @Template.Child // looks for id="my_button"
     declare my_button: Gtk.Button;
 
-    @Template.Child // ищет id="my-button"
+    @Template.Child // looks for id="my-button"
     declare ['my-button']: Gtk.Button;
 
-    @Template.Child // ищет id="myButton"
+    @Template.Child // looks for id="myButton"
     declare myButton: Gtk.Button;
 
-    @Template.Child // ищет id="_my_button"
+    @Template.Child // looks for id="_my_button"
     declare _my_button: Gtk.Button;
 }
 ~~~
 
-Имя ID берется из имени поля как есть.
+The ID name is taken from the field name as is.
 
-**Применение:** К полям классов, наследующих от `Gtk.Widget`.
+**Usage:** For fields of classes inheriting from `Gtk.Widget`.
 
-[Декоратор @Template.Child](Decorator.Template.Child.md)
-[Декоратор @Template.Object](Decorator.Template.Object.md)
+[Decorator @Template.Child](Decorator.Template.Child.md)
+[Decorator @Template.Object](Decorator.Template.Object.md)
 
 
 ### @Property.*
 
-Семейство декораторов для регистрации GObject свойств.
+Family of decorators for registering GObject properties.
 
 ~~~typescript
 @Widget()
@@ -295,17 +330,17 @@ class MyWidget extends Gtk.Widget {
 }
 ~~~
 
-Автоматическое связывание имен свойств: имя поля преобразуется в каноничную форму kebab-case для GObject (поле `myProperty` → свойство `"my-property"`).
+Automatic property name binding: field name is converted to canonical kebab-case form for GObject (field `myProperty` → property `"my-property"`).
 
-[Подробнее о преобразовании имен](Decorator.Property.key_to_canonical_name.md)
+[More about name conversion](Decorator.Property.key_to_canonical_name.md)
 
-Универсальный `@Property` позволяет указать произвольный `GObject.ParamSpec`.
+Universal `@Property` allows specifying arbitrary `GObject.ParamSpec`.
 
-Все `@Property.*` декораторы поддерживают как краткую форму передачи параметров, так и полную настройку через объект конфигурации.
+All `@Property.*` decorators support both short form parameter passing and full configuration through configuration object.
 
-**Применение:** К полям классов, наследующих от `GObject.Object`.
+**Usage:** For fields of classes inheriting from `GObject.Object`.
 
-**Полный список декораторов свойств:**
+**Complete list of property decorators:**
 - [@Property](Decorator.Property.md)
 - [@Property.Boolean](Decorator.Property.Boolean.md)
 - [@Property.Boxed](Decorator.Property.Boxed.md)
@@ -328,12 +363,12 @@ class MyWidget extends Gtk.Widget {
 - [@Property.UInt64](Decorator.Property.UInt64.md)
 - [@Property.ULong](Decorator.Property.ULong.md)
 - [@Property.UniChar](Decorator.Property.UniChar.md)
-- [@Property.Variant](Decorator.Property.Variant.md) (модуль ParamSpec.GLib)
+- [@Property.Variant](Decorator.Property.Variant.md) (модуль ParamSpec.GLib) TODO
 
 
 ### @Signals
 
-Декоратор для регистрации пользовательских сигналов.
+Decorator for registering custom GObject signals.
 
 ~~~typescript
 @Widget()
@@ -355,59 +390,58 @@ class MyWidget extends Gtk.Widget {
         'ready': () => void;
     };
 
-    // Типизированные методы для работы с сигналами
+    // declare typed methods for working with signals (using `declare` keyword)
     declare emit: EmitMethod<MyWidget>;
     declare connect: ConnectMethod<MyWidget>;
     declare connect_after: ConnectMethod<MyWidget>;
 
     private on_button_clicked() {
-        // Полная типизация
+        // Full typing
         const result = this.emit('value-changed', 42, 'hello');
         this.emit('ready');
     }
 }
 ~~~
 
-**Применение:** К полю `$signals` класса, наследующего от `GObject.Object`.
+**Usage:** For the `$signals` field of a class inheriting from `GObject.Object`.
 
-**Утилитарные типы:**
-- `ConnectMethod<T>` - типизированный интерфейс для `connect` и `connect_after`
-- `EmitMethod<T>` - типизированный интерфейс для `emit`
+**Utility types:**
+- `ConnectMethod<T>` - typed interface for `connect` and `connect_after`
+- `EmitMethod<T>` - typed interface for `emit`
 
-Предоставляют типизированные интерфейсы для методов `emit`, `connect` и `connect_after` с проверкой типов во время компиляции.
+Provide typed interfaces for `emit`, `connect` and `connect_after` methods with compile-time type checking.
 
-[Декоратор @Signals](Decorator.Signals.md)
+[Decorator @Signals](Decorator.Signals.md)
 
 
 ### @Action.Bind
 
-Декоратор создает активность (GAction), и связывает её с свойством виджета. Использует  [`Gtk.Widget.install_property_action`](https://docs.gtk.org/gtk4/class_method.Widget.install_property_action.html).
+Decorator creates an action (GAction) and binds it to a widget property. Uses [`Gtk.Widget.install_property_action`](https://docs.gtk.org/gtk4/class_method.Widget.install_property_action.html).
 
 ~~~typescript
 @Widget()
 class MyWidget extends Gtk.Widget {
 
-    @Action.Bind('app.volume') // Теперь action 'app.volume' вызывает изменение свойства volume
+    @Action.Bind('app.volume') // Now action 'app.volume' triggers volume property change
     @Property.Int(50, 0, 100)
     declare volume: number;
 
-    @Action.Bind('win.show-sidebar') // Активация 'win.show-sidebar' будет показывать/скрывать боковую панель
+    @Action.Bind('win.show-sidebar') // Activating 'win.show-sidebar' will show/hide the sidebar
     @Property.Boolean(true)
     declare show_sidebar: boolean;
-
 }
 ~~~
 
-Action привязывается к свойству: состояние action отражает значение свойства, активация action изменяет свойство.
+Action is bound to property: action state reflects property value, action activation changes property.
 
-**Применение:** К полям с декоратором `@Property.*` в классах, наследующих от `Gtk.Widget`.
+**Usage:** For fields with `@Property.*` decorator in classes inheriting from `Gtk.Widget`.
 
-[Декоратор @Action.Bind](Decorator.Action.Bind.md)
+[Decorator @Action.Bind](Decorator.Action.Bind.md)
 
 
 ### @Action.InstallAction
 
-Декоратор для установки пользовательских действий через [`Gtk.Widget.install_action`](https://docs.gtk.org/gtk4/class_method.Widget.install_action.html).
+Decorator for installing custom actions via [`Gtk.Widget.install_action`](https://docs.gtk.org/gtk4/class_method.Widget.install_action.html).
 
 ~~~typescript
 @Widget()
@@ -416,28 +450,28 @@ class MyWidget extends Gtk.Widget {
     @Action.InstallAction('widget.save')
     private on_save_action(parameter?: GLib.Variant | null) {
         console.log('Save action triggered');
-        // логика сохранения
+        // save logic
     }
 
-    @Action.InstallAction('widget.copy', 's') // параметр string
+    @Action.InstallAction('widget.copy', 's') // string parameter
     private on_copy_action(parameter?: GLib.Variant | null) {
         const text = parameter?.get_string()[0] ?? '';
-        // логика копирования
+        // copy logic
     }
 
     @Action.InstallAction('widget.delete')
     private on_delete_action() {
-        // можно опустить параметры если не нужны
+        // parameters can be omitted if not needed
     }
 }
 ~~~
 
-Применим к методу класса наследующего от Gtk.Widget, с сигнатурой `(parameter?: GLib.Variant | null) => void`.
+Applied to methods of classes inheriting from Gtk.Widget, with signature `(parameter?: GLib.Variant | null) => void`.
 
 
 ### @Styling
 
-Декоратор упрощающий CSS стилизацию виджетов.
+Decorator simplifying CSS styling of widgets.
 
 ~~~typescript
 @Styling({
@@ -449,7 +483,7 @@ class MyWindow extends Adw.ApplicationWindow {
         super();
 
         Styling.apply(this.get_display(),
-            // применяем стили предоставленные нашими виджетами
+            // apply styles provided by our widgets
             MyLabel,
             MyButton,
             MyChevron,
@@ -475,23 +509,23 @@ class MyWindow extends Adw.ApplicationWindow {
     my-custom-widget:hover {
         background: @accent_bg_color;
     }`
-}) // Встраивание CSS в код модуля кастомного виджета
-   // позволяет использовать его как полноценный самостоятельный компонент
+}) // Embedding CSS in custom widget module code
+   // allows using it as a full standalone component
 class MyWidget extends Gtk.Widget {
     ...
 }
 ~~~
 
-**Применение:** К классам, наследующим от `Gtk.Widget`.
+**Usage:** For classes inheriting from `Gtk.Widget`.
 
-**Утилитарные функции:**
-- `Styling.apply()` - применяет стили одноразово на указанный дисплей
-- `Styling.applyPreserve()` - применяет стили на указанный дисплей, с возможностью повторного применения
+**Utility functions:**
+- `Styling.apply()` - applies styles once to specified display
+- `Styling.applyPreserve()` - applies styles to specified display with possibility of reapplication
 
-[Декоратор @Styling](Decorator.Styling.md)
+[Decorator @Styling](Decorator.Styling.md)
 
 
-## Использование вместе
+## Using together
 
 ~~~typescript
 @Widget({ GTypeName: 'MusicPlayer' })
@@ -533,43 +567,81 @@ class MusicPlayer extends Gtk.Window {
 }
 ~~~
 
-Этот подход обеспечивает:
+This approach provides:
 
-- Автоматическую регистрацию в GObject системе
-- Чистый и читаемый код
-- Типизацию там где это возможно
-- Простоту рефакторинга и поддержки
+- Automatic registration in GObject system
+- Clean and readable code
+- Typing where possible
+- Easier refactoring and maintenance
 
 
-## TODO
+### @AddSignalMethods
 
-- Settings экосистема:
+Decorator for integrating GJS signal system into native TypeScript classes. Provides a wrapper over [`Signals.addSignalMethods`](https://gjs-docs.gnome.org/gjs/signals.md) for using signal system in classes that don't inherit from `GObject.Object`.
 
-@Settings.Bind('show-seconds', 'boolean')
-@Property.Boolean()
-declare show_seconds: boolean;  // автоматическая связь с GSettings
 
-@Settings.Schema('org.gnome.desktop.interface')
-class AppSettings extends GObject.Object { ... }
-
-@Settings.Bind('org.gnome.desktop.interface', 'show-weekdate')
-@Property.Boolean()
-declare show_weekdate: boolean;  // двусторонняя связь!
-
-@Settings.Bind('org.app.preferences', 'window-width')
-@Property.Int()
-declare window_width: number;
-
-- @CachedClosure
-
-@CachedClosure('expensive-calculation')
-protected calculate_heavy_stuff(_: this, data: ComplexData): string {
-    // тяжелые вычисления, но результат кэшируется
-    return expensive_computation(data);
+~~~typescript
+// Define signal signatures
+interface MyWorkerSignals {
+    'started': () => boolean;
+    'progress': (completed: number, total: number) => boolean;
+    'finished': (result: string) => boolean;
 }
-Идеально для:
 
-    Форматирование в списках (размеры файлов, даты...)
-    Layout вычисления
-    Преобразования цветов/стилей
-    Любые чистые функции с expensive operations
+@AddSignalMethods
+class MyWorker {
+    // Declare typed signal system methods
+    declare emit: SignalMethods<MyWorkerSignals>['emit'];
+    declare connect: SignalMethods<MyWorkerSignals>['connect'];
+    declare connectAfter: SignalMethods<MyWorkerSignals>['connectAfter'];
+    declare disconnect: SignalMethods<MyWorkerSignals>['disconnect'];
+    declare disconnectAll: SignalMethods<MyWorkerSignals>['disconnectAll'];
+    declare signalHandlerIsConnected: SignalMethods<MyWorkerSignals>['signalHandlerIsConnected'];
+
+    start_work() {
+        this.emit('started');
+        
+        for (let i = 0; i <= 100; i += 10) {
+            this.emit('progress', i, 100);
+        }
+        
+        this.emit('finished', 'success');
+    }
+}
+
+// Usage
+const worker = new MyWorker();
+
+worker.connect('started', () => {
+    console.log('Start...');
+    return SignalPropagate.CONTINUE;
+});
+
+worker.connect('progress', (_globalThis, completed: number, total: number) => {
+    console.log(`Progress: ${completed}/${total}`);
+    
+    if (completed >= 50) {
+        return SignalPropagate.STOP; // Stop further emission
+    }
+    
+    return SignalPropagate.CONTINUE;
+});
+~~~
+
+**Features:**
+- Full signal typing with IDE autocompletion
+- Compatibility with GObject signal system
+- Propagation control via `SignalPropagate.CONTINUE`/`STOP`
+- Automatic connection/disconnection management
+
+**Usage:** For native TypeScript classes that don't inherit from `GObject.Object` but need signal system.
+
+**Utility types:**
+- `SignalMethods<T>` - typed interface for all signal system methods
+- `SignalPropagate` - constants for controlling signal propagation
+
+**When to use:** For business logic, controllers, service classes that need event model but don't need to inherit from GObject.
+
+[Decorator @AddSignalMethods](Decorator.AddSignalMethods.md)
+
+
