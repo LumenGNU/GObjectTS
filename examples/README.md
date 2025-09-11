@@ -57,7 +57,7 @@ npm run build
 # Simple example - Adwaita Hello World
 npm run example:Adw.Hello-World
 
-# Другие примеры
+# other examples
 npm run example:... # use console autocompletion (double tab) to see available examples
 ~~~
 
