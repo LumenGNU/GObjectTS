@@ -198,7 +198,7 @@ Collects configuration from decorators:
 
 **Important:** Must be the last decorator in the class decorator chain (on top).
 
-[Decorator @Class](Decorator.Class.md)
+[Decorator @Class](Decorator/Class.md)
 
 
 ### @Widget
@@ -224,7 +224,7 @@ Collects configuration from decorators:
 
 **Important:** Must be the last decorator in the class decorator chain (on top). Not compatible with `@Class` decorator.
 
-[Decorator @Widget](Decorator.Widget.md)
+[Decorator @Widget](Decorator/Widget.md)
 
 
 ### @Widget.Template
@@ -256,7 +256,7 @@ class MainWindow extends Gtk.ApplicationWindow {
 
 **Usage:** For classes inheriting from `Gtk.Widget`.
 
-[Decorator @Widget.Template](Decorator.Widget.Template.md)
+[Decorator @Widget.Template](Decorator/Widget.Template.md)
 
 
 ### @Template.Child / @Template.Object
@@ -295,8 +295,8 @@ The ID name is taken from the field name as is.
 
 **Usage:** For fields of classes inheriting from `Gtk.Widget`.
 
-[Decorator @Template.Child](Decorator.Template.Child.md)
-[Decorator @Template.Object](Decorator.Template.Object.md)
+[Decorator @Template.Child](Decorator/Template.Child.md)
+[Decorator @Template.Object](Decorator/Template.Object.md)
 
 
 ### @Property.*
@@ -332,7 +332,7 @@ class MyWidget extends Gtk.Widget {
 
 Automatic property name binding: field name is converted to canonical kebab-case form for GObject (field `myProperty` → property `"my-property"`).
 
-[More about name conversion](Decorator.Property.key_to_canonical_name.md)
+[More about name conversion](Decorator/Property.key_to_canonical_name.md)
 
 Universal `@Property` allows specifying arbitrary `GObject.ParamSpec`.
 
@@ -341,29 +341,29 @@ All `@Property.*` decorators support both short form parameter passing and full 
 **Usage:** For fields of classes inheriting from `GObject.Object`.
 
 **Complete list of property decorators:**
-- [@Property](Decorator.Property.md)
-- [@Property.Boolean](Decorator.Property.Boolean.md)
-- [@Property.Boxed](Decorator.Property.Boxed.md)
-- [@Property.Char](Decorator.Property.Char.md)
-- [@Property.Double](Decorator.Property.Double.md)
-- [@Property.Enum](Decorator.Property.Enum.md)
-- [@Property.Flags](Decorator.Property.Flags.md)
-- [@Property.GType](Decorator.Property.GType.md)
-- [@Property.Int](Decorator.Property.Int.md)
-- [@Property.Int64](Decorator.Property.Int64.md)
-- [@Property.JSObject](Decorator.Property.JSObject.md)
-- [@Property.Long](Decorator.Property.Long.md)
-- [@Property.Object](Decorator.Property.Object.md)
-- [@Property.Override](Decorator.Property.Override.md)
-- [@Property.Param](Decorator.Property.Param.md)
-- [@Property.Pointer](Decorator.Property.Pointer.md)
-- [@Property.String](Decorator.Property.String.md)
-- [@Property.UChar](Decorator.Property.UChar.md)
-- [@Property.UInt](Decorator.Property.UInt.md)
-- [@Property.UInt64](Decorator.Property.UInt64.md)
-- [@Property.ULong](Decorator.Property.ULong.md)
-- [@Property.UniChar](Decorator.Property.UniChar.md)
-- [@Property.Variant](Decorator.Property.Variant.md) (модуль ParamSpec.GLib) TODO
+- [@Property](Decorator/Property.md)
+- [@Property.Boolean](Decorator/Property.Boolean.md)
+- [@Property.Boxed](Decorator/Property.Boxed.md)
+- [@Property.Char](Decorator/Property.Char.md)
+- [@Property.Double](Decorator/Property.Double.md)
+- [@Property.Enum](Decorator/Property.Enum.md)
+- [@Property.Flags](Decorator/Property.Flags.md)
+- [@Property.GType](Decorator/Property.GType.md)
+- [@Property.Int](Decorator/Property.Int.md)
+- [@Property.Int64](Decorator/Property.Int64.md)
+- [@Property.JSObject](Decorator/Property.JSObject.md)
+- [@Property.Long](Decorator/Property.Long.md)
+- [@Property.Object](Decorator/Property.Object.md)
+- [@Property.Override](Decorator/Property.Override.md)
+- [@Property.Param](Decorator/Property.Param.md)
+- [@Property.Pointer](Decorator/Property.Pointer.md)
+- [@Property.String](Decorator/Property.String.md)
+- [@Property.UChar](Decorator/Property.UChar.md)
+- [@Property.UInt](Decorator/Property.UInt.md)
+- [@Property.UInt64](Decorator/Property.UInt64.md)
+- [@Property.ULong](Decorator/Property.ULong.md)
+- [@Property.UniChar](Decorator/Property.UniChar.md)
+- [@Property.Variant](Decorator/Property.Variant.md) (модуль ParamSpec.GLib) TODO
 
 
 ### @Signals
@@ -411,7 +411,7 @@ class MyWidget extends Gtk.Widget {
 
 Provide typed interfaces for `emit`, `connect` and `connect_after` methods with compile-time type checking.
 
-[Decorator @Signals](Decorator.Signals.md)
+[Decorator @Signals](Decorator/Signals.md)
 
 
 ### @Action.Bind
@@ -436,7 +436,7 @@ Action is bound to property: action state reflects property value, action activa
 
 **Usage:** For fields with `@Property.*` decorator in classes inheriting from `Gtk.Widget`.
 
-[Decorator @Action.Bind](Decorator.Action.Bind.md)
+[Decorator @Action.Bind](Decorator/Action.Bind.md)
 
 
 ### @Action.InstallAction
@@ -522,7 +522,7 @@ class MyWidget extends Gtk.Widget {
 - `Styling.apply()` - applies styles once to specified display
 - `Styling.applyPreserve()` - applies styles to specified display with possibility of reapplication
 
-[Decorator @Styling](Decorator.Styling.md)
+[Decorator @Styling](Decorator/Styling.md)
 
 
 ## Using together
@@ -642,6 +642,6 @@ worker.connect('progress', (_globalThis, completed: number, total: number) => {
 
 **When to use:** For business logic, controllers, service classes that need event model but don't need to inherit from GObject.
 
-[Decorator @AddSignalMethods](Decorator.AddSignalMethods.md)
+[Decorator @AddSignalMethods](Decorator/AddSignalMethods.md)
 
 
