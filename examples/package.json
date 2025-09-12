@@ -31,18 +31,12 @@
         "rebuild": "npm run clean && npm run build",
         "made-executable": "find ./ -name '*.js' -not -path './node_modules/*' -exec sh -c 'head -3 \"$1\" | grep -q \"^#!\" && chmod +x \"$1\"' _ {} \\;",
         
-        "example:Tick:CustomGObjectSignals": "npm run build && ./Tick/CustomGObjectSignals.js",
-        "example:Tick:CustomGObjectDeclarative": "npm run build && ./Tick/CustomGObjectDeclarative.js",
-        "example:Tick:NativeGJSSignalSystem": "npm run build && ./Tick/NativeGJSSignalSystem.js",
+        "example:hello-world:Adwaita": "npm run build && ./Hello-World/Adwaita.js",
 
-        
-        "example:Adw.Hello-World": "npm run build && ./Adw.Hello-World/Hello-world.js",
+        "example:tick:CustomGObjectSignals": "npm run build && ./Tick/CustomGObjectSignals.js",
+        "example:tick:CustomGObjectDeclarative": "npm run build && ./Tick/CustomGObjectDeclarative.js",
+        "example:tick:NativeGJSSignalSystem": "npm run build && ./Tick/NativeGJSSignalSystem.js",
 
-        "example:actions": "npm run build && ./Actions.Hello-Word/Actions.Hello-Word.js",
-        "example:signals-ping": "npm run build && ./Signals.Ping-Pong/Signal.PingPong.js",
-        "example:signals-tick": "npm run build && ./Signals.Tick.ts/Signals.Tick.WithSignalsts.js",
-        "example:styling": "npm run build && ./Styling.Hello-word/Styling.Hello-world.js",
-        "example:masonry": "npm run build && ./MasonryBox/MasonryBox.js",
 
         "setup-resources": "cd Styling.Hello-word && glib-compile-resources gresource.xml"
     }

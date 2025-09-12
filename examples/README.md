@@ -55,7 +55,7 @@ npm run build
 ### 5. Run examples
 ~~~bash
 # Simple example - Adwaita Hello World
-npm run example:Adw.Hello-World
+npm run example:hello-world:Adwaita
 
 # other examples
 npm run example:... # use console autocompletion (double tab) to see available examples
