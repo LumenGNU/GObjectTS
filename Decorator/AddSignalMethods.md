@@ -1,19 +1,29 @@
-# Декоратор @AddSignalMethods
+# Decorator @AddSignalMethods
 
-Декоратор для интеграции сигнальной системы GJS в нативные TypeScript классы. Предоставляет типизированную обертку над `Signals.addSignalMethods` для использования событийной модели в классах, которые не наследуют от `GObject.Object`.
+Decorator for integrating GJS signal system into native GJS classes. Provides a typed wrapper over `Signals.addSignalMethods` for using event model in classes that don't inherit from `GObject.Object`.
 
-## Назначение
+## See also
 
-`@AddSignalMethods` решает задачу добавления событийной модели в обычные TypeScript классы с полной типизацией и совместимостью с сигнальной системой GObject. Подходит для бизнес-логики, контроллеров, сервисных классов и других компонентов, которым нужна событийная архитектура.
+- [Decorator @Signals - for GObject classes](Signals.md)
+- [GJS Signals Documentation](https://gjs-docs.gnome.org/gjs/signals.md)
+- [addSignalMethods implementation code in GJS](https://gitlab.gnome.org/GNOME/gjs/-/blob/master/modules/core/_signals.js)
+- [Additional examples](examples/Tick/NativeGJSSignalSystem.ts)
 
-## Требования
 
-**Обязательные зависимости:**
-- @girs типы версии `4.0.0-beta.25` или выше
+## Purpose
 
-> Важно: Более ранние версии @girs (до 4.0.0-beta.25) не содержат определения типов для GObject.SignalCallback, что приведет к ошибкам типизации при использовании.
+`@AddSignalMethods` solves the task of adding event model to regular GJS classes with full TypeScript typing and compatibility with GObject signal system. Suitable for business logic, controllers, service classes and other components that need event architecture.
 
-## Синтаксис
+
+## Requirements
+
+**Mandatory dependencies:**
+- @girs types version `4.0.0-beta.25` or higher
+
+> Important: Earlier versions of @girs (before 4.0.0-beta.25) don't contain type definitions for GObject.SignalCallback, which will lead to typing errors when using.
+
+
+## Syntax
 
 ~~~typescript
 import {
@@ -32,9 +42,9 @@ class MyClass {
 }
 ~~~
 
-## Определение сигналов
+## Signal Definition
 
-Сначала определите интерфейс с сигнатурами сигналов:
+First, define an interface with signal signatures:
 
 ~~~typescript
 interface MyClassSignals {
@@ -45,15 +55,16 @@ interface MyClassSignals {
 }
 ~~~
 
-Правила для сигнатур:
+Rules for signatures:
 
-- Все сигналы должны возвращать boolean
-- Первый параметр (globalThis) в обработчик подставляется автоматически
-- Параметры соответствуют аргументам, передаваемым в `emit()`
+- All signals must return `boolean`
+- First parameter (`globalThis`) is automatically injected into the handler
+- Parameters correspond to arguments passed to `emit()`
 
-## Основные примеры
 
-### Простой класс с событиями
+## Basic Examples
+
+### Simple class with events
 
 ~~~typescript
 import {
@@ -96,22 +107,22 @@ class TaskManager {
 }
 ~~~
 
-### Подключение обработчиков
+### Connecting handlers
 
 ~~~typescript
 const taskManager = new TaskManager();
 
-// Обработчик без параметров
+// Handler without parameters
 taskManager.connect('all-completed', () => {
-    console.log('Все задачи выполнены!');
+    console.log('All tasks completed!');
     return SignalPropagate.CONTINUE;
 });
 
-// Обработчик с типизированными параметрами
+// Handler with typed parameters
 taskManager.connect('task-added', (_globalThis, task: Task) => {
-    console.log(`Добавлена задача: ${task.title}`);
+    console.log(`Task added: ${task.title}`);
     
-    // Можно остановить дальнейшую обработку
+    // Can stop further processing
     if (task.priority === 'critical') {
         return SignalPropagate.STOP;
     }
@@ -119,22 +130,22 @@ taskManager.connect('task-added', (_globalThis, task: Task) => {
     return SignalPropagate.CONTINUE;
 });
 
-// Обработчик с connectAfter (вызывается после всех connect)
+// Handler with connectAfter (called after all connect handlers)
 const handlerId = taskManager.connectAfter('task-completed', (_globalThis, taskId: string) => {
-    console.log(`Задача ${taskId} завершена (connectAfter)`);
+    console.log(`Task ${taskId} completed (connectAfter)`);
     return SignalPropagate.CONTINUE;
 });
 
-// Отключение конкретного обработчика
+// Disconnect specific handler
 taskManager.disconnect(handlerId);
 
-// Отключение всех обработчиков
+// Disconnect all handlers
 taskManager.disconnectAll();
 ~~~
 
-### Управление распространением
+### Propagation Control
 
-Используйте `SignalPropagate` для контроля эмиссии:
+Use `SignalPropagate` to control emission:
 
 ~~~typescript
 import {
@@ -154,10 +165,10 @@ class InputValidator {
     declare connect: SignalsMethods<ValidationSignals>['connect'];
 
     validate(input: string): boolean {
-        // Эмитим сигнал валидации
+        // Emit validation signal
         this.emit('validate-input', input);
         
-        // Логика валидации...
+        // Validation logic...
         const isValid = input.length > 0;
         
         this.emit('validation-complete', isValid);
@@ -167,26 +178,26 @@ class InputValidator {
 
 const validator = new InputValidator();
 
-// Первый валидатор - проверка длины
+// First validator - length check
 validator.connect('validate-input', (_globalThis, value: string) => {
     if (value.length === 0) {
-        console.log('Пустое значение!');
-        return SignalPropagate.STOP; // Остановить дальнейшую валидацию
+        console.log('Empty value!');
+        return SignalPropagate.STOP; // Stop further validation
     }
     return SignalPropagate.CONTINUE;
 });
 
-// Второй валидатор - не выполнится если первый вернул STOP
+// Second validator - won't execute if first returned STOP
 validator.connect('validate-input', (_globalThis, value: string) => {
     if (!/^[a-zA-Z]+$/.test(value)) {
-        console.log('Только буквы разрешены!');
+        console.log('Only letters allowed!');
         return SignalPropagate.STOP;
     }
     return SignalPropagate.CONTINUE;
 });
 ~~~
 
-### Управление жизненным циклом
+### Lifecycle Management
 
 ~~~typescript
 import {
@@ -211,7 +222,7 @@ class NetworkManager {
     private external_connections: number[] = [];
 
     constructor() {
-        // Подключаемся к внешним объектам
+        // Connect to external objects
         this.external_connections.push(
             some_external_service.connect('status-changed', this.onExternalStatusChanged.bind(this))
         );
@@ -226,7 +237,7 @@ class NetworkManager {
         });
         this.external_connections = [];
 
-        // Отключаем все внутренние обработчики
+        // Disconnect all internal handlers
         this.disconnectAll();
     }
 
@@ -237,7 +248,7 @@ class NetworkManager {
 }
 ~~~
 
-### Интеграция с GObject классами
+### Integration with GObject classes
 
 ~~~typescript
 import {
@@ -251,7 +262,7 @@ interface CustomWidgetSignals {
     'user-action': (action: string, params: unknown) => boolean;
 }
 
-// Сервисный класс с событиями
+// Service class with events
 @AddSignalMethods
 class DataService {
     declare emit: SignalsMethods<CustomWidgetSignals>['emit'];
@@ -263,7 +274,7 @@ class DataService {
     }
 }
 
-// GTK виджет использующий сервис
+// GTK widget using the service
 @Widget()
 class MyWidget extends Gtk.Widget {
 
@@ -272,7 +283,7 @@ class MyWidget extends Gtk.Widget {
     constructor() {
         super();
         
-        // Подключаемся к событиям сервиса
+        // Connect to service events
         this.dataService.connect('data-loaded', (_globalThis, data: DataModel) => {
             this.updateUI(data);
             return SignalPropagate.CONTINUE;
@@ -280,16 +291,18 @@ class MyWidget extends Gtk.Widget {
     }
 
     private updateUI(data: DataModel) {
-        // Обновление интерфейса
+        // UI update
     }
 }
 ~~~
 
-## Утилитарные типы
 
-### SignalsMethods<T>
+## Utility Types
 
-Типизированный интерфейс для всех методов сигнальной системы:
+
+### SignalMethods<T>
+
+Typed interface for all signal system methods:
 
 ~~~typescript
 interface SignalsMethods<S extends Record<keyof S, (...args: any[]) => boolean>> {
@@ -302,53 +315,53 @@ interface SignalsMethods<S extends Record<keyof S, (...args: any[]) => boolean>>
 }
 ~~~
 
+
 ### SignalPropagate
 
-Константы для управления распространением сигналов:
+Constants for controlling signal propagation:
 
 ~~~typescript
 const SignalPropagate = {
-    CONTINUE: false,  // Продолжить эмиссию
-    STOP: true        // Остановить эмиссию
+    CONTINUE: false,  // Continue emission
+    STOP: true        // Stop emission
 };
 ~~~
 
-## Особенности и ограничения
+## Features and Limitations
 
-Отличия от GObject сигналов
+Differences from GObject signals
 
-Аспект	          | @AddSignalMethods | GObject сигналы
-------------------|-------------------|------------------
-Первый параметр	  | globalThis	      | sender объект
-Регистрация	      | Не требуется	  | Через GObject.registerClass
-Типизация         | Есть              | Частично
-Наследование	  | Нативные классы	  | GObject классы
-Производительность| Легковесная	      | Оптимизированная C реализация
+Aspect	          | AddSignalMethods    | GObject signals
+------------------|---------------------|------------------
+First parameter	  | globalThis	        | sender object
+Registration	  | Not required	    | Via GObject.registerClass
+Inheritance	      | Native GJS classes	| GObject classes
+Performance       | Lightweight	        | Optimized C implementation
 
-### Рекомендации
+### Recommendations
 
-Используйте когда:
+Use when:
 
-- Нужна событийная модель в нативных классах
-- Требуется полная типизация сигналов
-- Класс не должен наследовать от GObject
-- Важна читаемость и поддержка кода
+- Need event model in native classes
+- Full signal typing is required
+- Class shouldn't inherit from GObject
+- Code readability and maintenance are important
 
-Не используйте когда:
+Don't use when:
 
-- Класс уже наследует от GObject.Object
-- Нужна максимальная производительность
-- Требуется сложная логика сигналов (детали, blocking)
+- Class already inherits from GObject.Object
+- Maximum performance is needed
+- Complex signal logic is required (details, blocking)
 
 ~~~typescript
-// Хорошо: Четкие имена сигналов и типизация
+// Good: Clear signal names and typing
 interface FileManagerSignals {
     'file-created': (path: string, size: number) => boolean;
     'file-deleted': (path: string) => boolean;
     'operation-progress': (completed: number, total: number) => boolean;
 }
 
-// Хорошо: Группировка связанных методов
+// Good: Grouping related methods
 @AddSignalMethods
 class FileManager {
     declare emit: SignalsMethods<FileManagerSignals>['emit'];
@@ -356,19 +369,14 @@ class FileManager {
     declare disconnect: SignalsMethods<FileManagerSignals>['disconnect'];
     declare disconnectAll: SignalsMethods<FileManagerSignals>['disconnectAll'];
     
-    // Бизнес логика
+    // Business logic
 }
 
-// Плохо: Смешивание с GObject наследованием
-@AddSignalMethods  // Не нужно - у GObject.Object уже есть сигналы
-class BadExample extends GObject.Object {
-    // ...
-}
 ~~~
 
-## Еще примеры
+## More Examples
 
-**MVC контроллер**
+**MVC Controller**
 
 ~~~typescript
 import {
@@ -399,7 +407,7 @@ class AppController {
 
     updateModel(modelName: string, data: unknown) {
         try {
-            // Логика обновления модели
+            // Model update logic
             this.emit('model-updated', modelName, data);
         } catch (error) {
             this.emit('error-occurred', error as Error);
@@ -408,7 +416,7 @@ class AppController {
 }
 ~~~
 
-**Система уведомлений**
+**Notification System**
 
 ~~~typescript
 import {
@@ -448,9 +456,3 @@ class NotificationService {
 }
 ~~~
 
-## См. также
-
-- [Декоратор @Signals - для GObject классов](Decorator.Signals.md)
-- [GJS Signals Documentation](https://gjs-docs.gnome.org/gjs/signals.md)
-- [Код реализации addSignalMethods в GJS](org/gnome/gjs/modules/core/_signals.js)
-- [Дополнительные примеры](examples/Signals.Tick.ts/Signals.Tick.WithoutGObject.ts)
