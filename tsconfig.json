@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "diagnostics": false,
+    "incremental": false,
+    "allowUnreachableCode": false,
+    "allowJs": false,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "lib": [
+      "ES2022"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "removeComments": false,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "rootDir": "./src",
+    "outDir": "./GObjectTS",
+    "declaration": true,
+    "declarationMap": false,
+    "types": [
+      "@girs/adw-1",
+      "@girs/gdk-4.0",
+      "@girs/gio-2.0",
+      "@girs/giounix-2.0",
+      "@girs/gjs",
+      "@girs/gjs/dom",
+      "@girs/glib-2.0",
+      "@girs/glibunix-2.0",
+      "@girs/gobject-2.0",
+      "@girs/gtk-4.0",
+      "@girs/pango-1.0"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "examples",
+    "node_modules",
+    "GObjectTS"
+  ]
+}

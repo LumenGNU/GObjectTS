@@ -1,0 +1,24 @@
+{
+  "name": "gobject-ts",
+  "version": "0.0.0",
+  "description": "TypeScript decorators for GObject in GJS",
+  "type": "module",
+  "devDependencies": {
+    "@girs/adw-1": "^1.8.0-4.0.0-beta.25",
+    "@girs/gdk-4.0": "^4.0.0-4.0.0-beta.25",
+    "@girs/gio-2.0": "^2.84.2-4.0.0-beta.25",
+    "@girs/giounix-2.0": "^2.0.0-4.0.0-beta.25",
+    "@girs/gjs": "^4.0.0-beta.25",
+    "@girs/glib-2.0": "^2.84.2-4.0.0-beta.25",
+    "@girs/glibunix-2.0": "^2.0.0-4.0.0-beta.25",
+    "@girs/gobject-2.0": "^2.84.2-4.0.0-beta.25",
+    "@girs/gtk-4.0": "^4.19.1-4.0.0-beta.25",
+    "@girs/pango-1.0": "^1.56.4-4.0.0-beta.25",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "build": "npx -- tsc",
+    "clean": "find GObjectTS -name '*.js' -delete && find GObjectTS -name '*.d.ts' -delete && find GObjectTS -name '*.d.ts.map' -delete",
+    "rebuild": "npm run clean && npm run build"
+  }
+}
