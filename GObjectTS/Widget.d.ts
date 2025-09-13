@@ -23,7 +23,6 @@ declare function Widget(config?: ClassConfig): ClassDecorator<Gtk.WidgetClass>;
 declare namespace Widget {
     var Template: (XML: string) => (target: Gtk.WidgetClass & GObject.ObjectConstructor) => void;
 }
-export { Widget };
 /** Пространство имён для декораторов связывающих свойства класса с
  * элементами из XML/Blueprint шаблона виджета.
  *
@@ -48,5 +47,6 @@ declare const Template: {
      */
     Child: (target: Gtk.Widget, property_key: string) => void;
 };
-export { Template };
+export { Widget, Template };
 export { StylePriority, Styling } from './Styling.js';
+export declare const TypeFlags: typeof GObject.TypeFlags;

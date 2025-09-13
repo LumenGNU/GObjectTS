@@ -30,3 +30,4 @@ import { ClassConfig, ClassDecorator } from "./_Private.js";
  * ``` */
 declare function Class(config?: ClassConfig): ClassDecorator<GObject.ObjectClass>;
 export { Class };
+export declare const TypeFlags: typeof GObject.TypeFlags;

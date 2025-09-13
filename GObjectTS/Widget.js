@@ -113,7 +113,6 @@ function Widget(config) {
         }
     };
 }
-export { Widget };
 //
 /** Интерфейс для подключения шаблонов виджета.
  *
@@ -172,5 +171,6 @@ const Template = {
      * Смотри {@link Template.Child} */
     //Object: (internal?: boolean) => PropertyDecorator<Gtk.Widget>,
 };
-export { Template };
+export { Widget, Template };
 export { Styling } from './Styling.js';
+export const { TypeFlags } = GObject;

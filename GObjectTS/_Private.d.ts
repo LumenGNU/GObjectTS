@@ -17,10 +17,14 @@ import type Gtk from "gi://Gtk?version=4.0";
  *   `ClassDecorator<Gtk.WidgetClass>` -- только для Gtk классов-виджетов. */
 export type ClassDecorator<Target = never> = (target: Target & GObject.ObjectConstructor) => void;
 export type WidgetClassDecorator = (target: Gtk.WidgetClass & WidgetConstructor) => void;
+interface GObjectInterface {
+    $gtype: GObject.GType;
+    prototype: any;
+}
 export type ClassConfig = {
     GTypeName?: string;
     GTypeFlags?: GObject.TypeFlags;
-    Requires?: GObject.Object[];
+    Requires?: GObjectInterface[];
     Implements?: {
         $gtype: GObject.GType;
     }[];

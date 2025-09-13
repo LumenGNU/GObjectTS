@@ -67,3 +67,4 @@ function Class(config) {
     };
 }
 export { Class };
+export const { TypeFlags } = GObject;

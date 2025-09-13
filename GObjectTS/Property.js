@@ -1,3 +1,4 @@
+import GObject from 'gi://GObject?version=2.0';
 import { boolean_param_spec, boxed_param_spec, char_param_spec, double_param_spec, enum_param_spec, flags_param_spec, float_param_spec, gtype_param_spec, int_param_spec, int64_param_spec, jsobject_param_spec, long_param_spec, object_param_spec, override_param_spec, param_param_spec, pointer_param_spec, string_param_spec, to_canonical_name, uchar_param_spec, uint_param_spec, uint64_param_spec, ulong_param_spec, unichar_param_spec, } from './Property.ParamSpec.js';
 import { variant_param_spec, } from './Property.ParamSpec.GLib.js';
 import { DecoratorError } from './Error.js';
@@ -1030,3 +1031,4 @@ Property.UniChar = function (...spec_params) {
  */
 Property.key_to_canonical_name = to_canonical_name;
 export { Property };
+export const ParamFlags = GObject.ParamFlags;

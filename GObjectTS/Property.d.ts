@@ -60,3 +60,4 @@ declare namespace Property {
     var key_to_canonical_name: typeof to_canonical_name;
 }
 export { Property };
+export declare const ParamFlags: typeof GObject.ParamFlags;
