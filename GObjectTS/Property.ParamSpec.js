@@ -322,12 +322,12 @@ function object_metadata(name, params) {
 function object_param_spec(name, params) {
     const spec_info = _flags_guarder(object_metadata(name, params));
     try {
-        if (spec_info.params.g_type === GObject.TYPE_OBJECT) {
-            throw { message: 'Cannot use abstract G_TYPE_OBJECT, specific object type required.' };
-        }
-        if (GObject.type_fundamental(spec_info.params.g_type) !== GObject.TYPE_OBJECT) {
-            throw { message: 'Type is not an object type. Only GObject-derived types supported for object ParamSpec.' };
-        }
+        // if (spec_info.params.g_type === GObject.TYPE_OBJECT) {
+        //     throw { message: 'Cannot use abstract G_TYPE_OBJECT, specific object type required.' };
+        // }
+        // if (GObject.type_fundamental(spec_info.params.g_type) !== GObject.TYPE_OBJECT) {
+        //     throw { message: 'Type is not an object type. Only GObject-derived types supported for object ParamSpec.' };
+        // }
         const param_spec_object = GObject.param_spec_object(spec_info.params.name, spec_info.params.nick, spec_info.params.blurb, spec_info.params.g_type, spec_info.params.flags);
         if (param_spec_object !== null) {
             return param_spec_object;
