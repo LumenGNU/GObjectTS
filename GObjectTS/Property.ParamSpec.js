@@ -325,6 +325,7 @@ function object_param_spec(name, params) {
         // if (spec_info.params.g_type === GObject.TYPE_OBJECT) {
         //     throw { message: 'Cannot use abstract G_TYPE_OBJECT, specific object type required.' };
         // }
+        // @fixme эта проверка должна учитывать что g_type может быть интерфейсом
         // if (GObject.type_fundamental(spec_info.params.g_type) !== GObject.TYPE_OBJECT) {
         //     throw { message: 'Type is not an object type. Only GObject-derived types supported for object ParamSpec.' };
         // }

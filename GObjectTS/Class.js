@@ -1,13 +1,6 @@
 import GObject from "gi://GObject?version=2.0";
 import { delete_property_collector, delete_signals_collector, get_property_collector, get_signals_collector } from "./_Private.js";
 import { DecoratorError } from "./Error.js";
-function prepare_err_context(target, decorator_name, error) {
-    return {
-        class: target.name,
-        decorator: decorator_name,
-        ...error,
-    };
-}
 /** Интерфейс для работы с базовыми GObject классами.
  *
  * Предоставляет декоратор для регистрации класса в системе типов GObject.
@@ -62,7 +55,7 @@ function Class(config) {
             // });
         }
         catch (error) {
-            throw new DecoratorError(prepare_err_context(target, '@Class', { message: `Class registration error: ${error.message}` }));
+            throw new DecoratorError({ class: target.name, decorator: '@Class', message: `Class registration error: ${error.message}` });
         }
     };
 }

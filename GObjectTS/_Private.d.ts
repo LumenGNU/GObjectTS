@@ -17,18 +17,16 @@ import type Gtk from "gi://Gtk?version=4.0";
  *   `ClassDecorator<Gtk.WidgetClass>` -- только для Gtk классов-виджетов. */
 export type ClassDecorator<Target = never> = (target: Target & GObject.ObjectConstructor) => void;
 export type WidgetClassDecorator = (target: Gtk.WidgetClass & WidgetConstructor) => void;
-interface GObjectInterface {
-    $gtype: GObject.GType;
-    prototype: any;
-}
 export type ClassConfig = {
     GTypeName?: string;
     GTypeFlags?: GObject.TypeFlags;
-    Requires?: GObjectInterface[];
+    Requires?: {
+        $gtype: GObject.GType;
+    }[];
     Implements?: {
         $gtype: GObject.GType;
     }[];
-} | string;
+};
 declare const __SignalKey: unique symbol;
 type SignalKey = string & {
     readonly [__SignalKey]: never;

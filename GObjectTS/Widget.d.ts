@@ -19,7 +19,7 @@ import Gtk from 'gi://Gtk?version=4.0';
  *
  * @returns RegistrationDecorator ограниченный типом Gtk.WidgetClass.
  */
-declare function Widget(config?: ClassConfig): ClassDecorator<Gtk.WidgetClass>;
+declare function Widget(config?: ClassConfig | string): ClassDecorator<Gtk.WidgetClass>;
 declare namespace Widget {
     var Template: (XML: string) => (target: Gtk.WidgetClass & GObject.ObjectConstructor) => void;
 }

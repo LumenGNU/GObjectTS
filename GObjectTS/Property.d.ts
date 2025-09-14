@@ -32,31 +32,31 @@ import { PropertyDecorator } from './_Private.js';
  * @throws {DecoratorError} При любых проблемах регистрации свойства
  *
  * @returns PropertyDecorator применимый к GObject.Object. */
-declare function Property(spec: GObject.ParamSpec): PropertyDecorator<GObject.Object>;
+declare function Property(spec: GObject.ParamSpec): PropertyDecorator<GObject.Object | GObject.Interface>;
 declare namespace Property {
-    var Boolean: (...spec_params: [BooleanConfig] | BooleanParams) => PropertyDecorator<GObject.Object>;
-    var Boxed: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object>;
-    var Enum: (...spec_params: [TypedNumericConfig] | TypedNumericParams) => PropertyDecorator<GObject.Object>;
-    var Flags: (...spec_params: [TypedNumericConfig] | TypedNumericParams) => PropertyDecorator<GObject.Object>;
-    var GType: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object>;
-    var JSObject: (...spec_params: [BaseConfig] | []) => PropertyDecorator<GObject.Object>;
-    var Object: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object>;
-    var Override: (...spec_params: [OverrideConfig] | OverrideParams) => PropertyDecorator<GObject.Object>;
-    var Param: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object>;
-    var Pointer: (...spec_params: [BaseConfig] | []) => PropertyDecorator<GObject.Object>;
-    var String: (...spec_params: [StringConfig] | StringParams) => PropertyDecorator<GObject.Object>;
-    var Variant: (...spec_params: [VariantConfig] | VariantParams) => PropertyDecorator<GObject.Object>;
-    var Char: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var Double: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var _Float: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var Int: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var Int64: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var Long: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var UChar: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var UInt: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var UInt64: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var ULong: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object>;
-    var UniChar: (...spec_params: [UniCharConfig] | UniCharParams) => PropertyDecorator<GObject.Object>;
+    var Boolean: (...spec_params: [BooleanConfig] | BooleanParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Boxed: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Enum: (...spec_params: [TypedNumericConfig] | TypedNumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Flags: (...spec_params: [TypedNumericConfig] | TypedNumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var GType: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var JSObject: (...spec_params: [BaseConfig] | []) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Object: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Override: (...spec_params: [OverrideConfig] | OverrideParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Param: (...spec_params: [GTypeConfig] | GTypeParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Pointer: (...spec_params: [BaseConfig] | []) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var String: (...spec_params: [StringConfig] | StringParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Variant: (...spec_params: [VariantConfig] | VariantParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Char: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Double: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var _Float: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Int: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Int64: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var Long: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var UChar: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var UInt: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var UInt64: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var ULong: (...spec_params: [NumericConfig] | NumericParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
+    var UniChar: (...spec_params: [UniCharConfig] | UniCharParams) => PropertyDecorator<GObject.Object | GObject.Interface>;
     var key_to_canonical_name: typeof to_canonical_name;
 }
 export { Property };
