@@ -35,9 +35,9 @@ function _flags_guarder(spec_info) {
     if ((spec_info.params.flags & (GObject.ParamFlags.STATIC_NAME | GObject.ParamFlags.STATIC_NICK | GObject.ParamFlags.STATIC_BLURB)) !== 0) {
         console.warn('Bug: flag \'ParamFlags.STATIC_*\' has problem in GJS.');
     }
-    if ((spec_info.params.flags & GObject.ParamFlags.CONSTRUCT_ONLY) !== 0) {
-        console.warn('Bug: flag \'ParamFlags.CONSTRUCT_ONLY\' has problem in GJS.');
-    }
+    // if ((spec_info.params.flags & GObject.ParamFlags.CONSTRUCT_ONLY) !== 0) {
+    //     console.warn('Bug: flag \'ParamFlags.CONSTRUCT_ONLY\' has problem in GJS.');
+    // }
     return spec_info;
 }
 ;

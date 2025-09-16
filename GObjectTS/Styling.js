@@ -35,7 +35,7 @@
 import GLib from 'gi://GLib?version=2.0';
 import Gtk from 'gi://Gtk?version=4.0';
 import { DecoratorError } from './Error.js';
-import { css_name_collector, styling_registry_collector } from './_Private.js';
+import { CSS_DEPENDENCIES_COLLECTOR_KEY, CSS_NAME_COLLECTOR_KEY, STYLING_REGISTRY_COLLECTOR_KEY } from './_Private.js';
 /** Specialized error class for CSS parsing failures in widget styling.
  *
  * Thrown by `Styling.apply()` when one or more CSS parsing errors occur during
@@ -70,8 +70,11 @@ class CSSParseError extends Error {
     name = 'CSSParseError';
 }
 function ensure_styling_registry(target) {
-    return target[styling_registry_collector] ??= new Map();
+    return target[STYLING_REGISTRY_COLLECTOR_KEY] ??= new Map();
 }
+// function ensure_styling_dependencies(target: WidgetConstructor) {
+//     return (target as StylingDependenciesCarrier)[CSS_DEPENDENCIES_COLLECTOR_KEY] ??= [];
+// }
 /** Declarative styling decorator for Gtk.Widget classes.
  *
  * Provides a declarative way to apply CSS styles to widget classes using decorators.
@@ -319,14 +322,17 @@ function ensure_styling_registry(target) {
  *
  * */
 const Styling = function (config) {
-    const { CssName, ...Styles } = config;
+    const { CssName, CssDependencies, ...Styles } = config;
     config = undefined;
     return function (target) {
-        if ((css_name_collector in target) || (styling_registry_collector in target)) {
+        if ((CSS_NAME_COLLECTOR_KEY in target) || (STYLING_REGISTRY_COLLECTOR_KEY in target) || (CSS_DEPENDENCIES_COLLECTOR_KEY in target)) {
             throw new DecoratorError({ class: target.name, decorator: '@Styling', message: 'Styling decorator already applied to this class. Each class can have only one @Styling decorator.' });
         }
         if (CssName) {
-            target[css_name_collector] = CssName;
+            target[CSS_NAME_COLLECTOR_KEY] = CssName;
+        }
+        if (CssDependencies) {
+            target[CSS_DEPENDENCIES_COLLECTOR_KEY] = CssDependencies;
         }
         const style_entries = Object.entries(Styles);
         if (style_entries.length > 0) {
@@ -391,9 +397,111 @@ const Styling = function (config) {
  * - {@link Styling} Main decorator documentation with detailed examples
  * - {@link CSSParseError} Error details and handling patterns
  * */
+// Styling.apply = function (display: Gdk.Display, widget_class: WidgetConstructor) {
+//     const all_parsing_errors = new Map<string, string>();
+//     apply_for_class(display, false, widget_class, all_parsing_errors);
+//     if (all_parsing_errors.size > 0) {
+//         const message = [] as string[];
+//         message.push('CSS parsing errors found in widget styling:');
+//         all_parsing_errors.forEach((value, key) => {
+//             message.push(`${key}:`);
+//             message.push(value);
+//         });
+//         throw new CSSParseError(message.join('\n'));
+//     }
+// };
+/** Applies collected styling metadata to the specified display.
+ *
+ * @param display - The Gdk.Display to apply styles to
+ * @param widget_classes - Widget classes decorated with @Styling to apply styles for
+ *
+ * @example
+ * ~~~typescript
+ * const display = this.get_display();
+ * Styling.apply(display, MyWidget, AnotherWidget);
+ * ~~~
+ */
 Styling.apply = function (display, ...widget_classes) {
-    apply_for_classes(display, false, ...widget_classes);
+    apply_for_classes(display, ...widget_classes);
 };
+function apply_for_classes(display, ...widget_classes) {
+    const all_parsing_errors = new Map();
+    widget_classes.forEach((widget_class) => {
+        apply_for_class(display, widget_class, all_parsing_errors);
+    });
+    if (all_parsing_errors.size > 0) {
+        const message = [];
+        message.push('CSS parsing errors found in widget styling:');
+        all_parsing_errors.forEach((value, key) => {
+            message.push(`${key}:`);
+            message.push(value);
+        });
+        throw new CSSParseError(message.join('\n'));
+    }
+}
+function apply_for_class(display, widget_class, all_parsing_errors) {
+    // Сначала обрабатываем CSS зависимости рекурсивно
+    if (CSS_DEPENDENCIES_COLLECTOR_KEY in widget_class) {
+        const dependencies = widget_class[CSS_DEPENDENCIES_COLLECTOR_KEY];
+        if (dependencies && dependencies.length > 0) {
+            dependencies.forEach((dependency_class) => {
+                apply_for_class(display, dependency_class, all_parsing_errors);
+            });
+        }
+        delete widget_class[CSS_DEPENDENCIES_COLLECTOR_KEY];
+    }
+    // Затем обрабатываем собственные стили класса
+    if (STYLING_REGISTRY_COLLECTOR_KEY in widget_class) {
+        try {
+            const collector = ensure_styling_registry(widget_class);
+            collector.forEach((styling, priority) => {
+                const css_provider = Gtk.CssProvider.new();
+                const parsing_error_buffer = new Map();
+                const error_hid = css_provider.connect('parsing-error', function (_source, css_section, gerror) {
+                    parsing_error_buffer.set(css_section.to_string(), gerror.message);
+                });
+                try {
+                    const uri = GLib.Uri.parse(styling, GLib.UriFlags.NONE);
+                    const scheme = uri.get_scheme();
+                    if (scheme === 'resource') {
+                        css_provider.load_from_resource(uri.get_path());
+                    }
+                    else if (scheme === 'file') {
+                        css_provider.load_from_path(uri.get_path());
+                    }
+                    else {
+                        throw new Error(`Unsupported URI scheme for ${widget_class.name}. Supported schemes: 'resource', 'file'. Got: ${scheme}`);
+                    }
+                }
+                catch (error) {
+                    if (!(error instanceof GLib.UriError))
+                        throw new Error(`Unexpected error while loading styling for ${widget_class.name}: ${error.message}`, { cause: error });
+                    css_provider.load_from_string(styling);
+                }
+                finally {
+                    css_provider.disconnect(error_hid);
+                }
+                if (parsing_error_buffer.size > 0) {
+                    parsing_error_buffer.forEach((value, key) => {
+                        const [source, line, ...columns] = key.split(':');
+                        const identifier = `${widget_class.name}::[${priority}]::${source}`;
+                        if (all_parsing_errors.has(identifier)) {
+                            all_parsing_errors.set(identifier, `${all_parsing_errors.get(identifier)}\n – ${line}:${columns} ${value}`);
+                        }
+                        else {
+                            all_parsing_errors.set(identifier, ` – ${line}:${columns} ${value}`);
+                        }
+                    });
+                }
+                Gtk.StyleContext.add_provider_for_display(display, css_provider, priority);
+            });
+        }
+        finally {
+            // Consume styling metadata - prevents reapplication and frees memory
+            delete widget_class[STYLING_REGISTRY_COLLECTOR_KEY];
+        }
+    }
+}
 /** Applies collected styling metadata to the specified display without consuming metadata.
  *
  * Same as {@link Styling.apply} but preserves styling metadata after application,
@@ -421,81 +529,77 @@ Styling.apply = function (display, ...widget_classes) {
  * ~~~
  *
  * @see {@link Styling.apply} Standard method that consumes metadata */
-Styling.applyPreserve = function (display, ...widget_classes) {
-    apply_for_classes(display, true, ...widget_classes);
-};
-function apply_for_classes(display, preserve, ...widget_classes) {
-    const all_parsing_errors = new Map();
-    widget_classes.forEach((widget_class) => {
-        apply_for_class(widget_class, display, preserve, all_parsing_errors);
-    });
-    if (all_parsing_errors.size > 0) {
-        const message = [];
-        message.push('CSS parsing errors found in widget styling:');
-        all_parsing_errors.forEach((value, key) => {
-            message.push(`${key}:`);
-            message.push(value);
-        });
-        throw new CSSParseError(message.join('\n'));
-    }
-}
-function apply_for_class(widget_class, display, preserve, all_parsing_errors) {
-    if (styling_registry_collector in widget_class) {
-        try {
-            const collector = ensure_styling_registry(widget_class);
-            collector.forEach((styling, priority) => {
-                const css_provider = Gtk.CssProvider.new();
-                const parsing_error_buffer = new Map();
-                const error_hid = css_provider.connect('parsing-error', function (_source, css_section, gerror) {
-                    parsing_error_buffer.set(css_section.to_string(), gerror.message);
-                });
-                // String interpretation behavior is consistent with GTK Template handling
-                // in org/gnome/gjs/modules/core/overrides/Gtk.js
-                // WARNING: Be prepared for CSS parsing errors with messages like
-                // "<data>:1:10-12: Unknown pseudoclass" if the string resembles a URI
-                // but is not a valid URI (e.g., contains colons in CSS selectors).
-                try {
-                    const uri = GLib.Uri.parse(styling, GLib.UriFlags.NONE);
-                    const scheme = uri.get_scheme();
-                    if (scheme === 'resource') {
-                        css_provider.load_from_resource(uri.get_path());
-                    }
-                    else if (scheme === 'file') {
-                        css_provider.load_from_path(uri.get_path());
-                    }
-                    else {
-                        throw new Error(`Unsupported URI scheme for ${widget_class.name}. Supported schemes: 'resource', 'file'. Got: ${scheme}`);
-                    }
-                }
-                catch (error) {
-                    if (!(error instanceof GLib.UriError))
-                        throw new Error(`Unexpected error while loading styling for ${widget_class.name}: ${error.message}`, { cause: error });
-                    css_provider.load_from_string(styling);
-                }
-                finally {
-                    css_provider.disconnect(error_hid);
-                }
-                if (parsing_error_buffer.size > 0) {
-                    parsing_error_buffer.forEach((value, key) => {
-                        const [source, line, ...columns] = key.split(':');
-                        const identifier = `${widget_class.name}::[${priority}]::${source}`;
-                        if (all_parsing_errors.has(identifier)) {
-                            all_parsing_errors.set(identifier, `${all_parsing_errors.get(identifier)}\n ▪ ${line}:${columns} ${value}`);
-                        }
-                        else {
-                            all_parsing_errors.set(identifier, ` ▪ ${line}:${columns} ${value}`);
-                        }
-                    });
-                }
-                Gtk.StyleContext.add_provider_for_display(display, css_provider, priority);
-            });
-        }
-        finally {
-            // Consume styling metadata - prevents reapplication and frees memory
-            // Subsequent calls to apply() with this class will have no effect
-            if (!preserve)
-                delete widget_class[styling_registry_collector];
-        }
-    }
-}
+// Styling.applyPreserve = function (display: Gdk.Display, ...widget_classes: WidgetConstructor[]) {
+//     apply_for_classes(display, true, ...widget_classes);
+// };
+// function apply_for_classes(display: Gdk.Display, preserve: boolean, ...widget_classes: WidgetConstructor[]) {
+//     const all_parsing_errors = new Map<string, string>();
+//     widget_classes.forEach((widget_class) => {
+//         apply_for_class(display, preserve, widget_class, all_parsing_errors);
+//     });
+//     if (all_parsing_errors.size > 0) {
+//         const message = [] as string[];
+//         message.push('CSS parsing errors found in widget styling:');
+//         all_parsing_errors.forEach((value, key) => {
+//             message.push(`${key}:`);
+//             message.push(value);
+//         });
+//         throw new CSSParseError(message.join('\n'));
+//     }
+// }
+// function apply_for_class(display: Gdk.Display, preserve: boolean, widget_class: WidgetConstructor, all_parsing_errors: Map<string, string>) {
+//     if (STYLING_REGISTRY_COLLECTOR_KEY in widget_class) {
+//         try {
+//             const collector = ensure_styling_registry(widget_class);
+//             collector.forEach((styling, priority) => {
+//                 const css_provider = Gtk.CssProvider.new();
+//                 const parsing_error_buffer = new Map<string, string>();
+//                 const error_hid = css_provider.connect('parsing-error',
+//                     function (_source: Gtk.CssProvider, css_section: Gtk.CssSection, gerror: GLib.Error) {
+//                         parsing_error_buffer.set(css_section.to_string(), gerror.message);
+//                     });
+//                 // String interpretation behavior is consistent with GTK Template handling
+//                 // in org/gnome/gjs/modules/core/overrides/Gtk.js
+//                 // WARNING: Be prepared for CSS parsing errors with messages like
+//                 // "<data>:1:10-12: Unknown pseudoclass" if the string resembles a URI
+//                 // but is not a valid URI (e.g., contains colons in CSS selectors).
+//                 try {
+//                     const uri = GLib.Uri.parse(styling, GLib.UriFlags.NONE);
+//                     const scheme = uri.get_scheme();
+//                     if (scheme === 'resource') {
+//                         css_provider.load_from_resource(uri.get_path());
+//                     } else if (scheme === 'file') {
+//                         css_provider.load_from_path(uri.get_path());
+//                     } else {
+//                         throw new Error(`Unsupported URI scheme for ${widget_class.name}. Supported schemes: 'resource', 'file'. Got: ${scheme}`);
+//                     }
+//                 } catch (error) {
+//                     if (!(error instanceof GLib.UriError))
+//                         throw new Error(`Unexpected error while loading styling for ${widget_class.name}: ${(error as Error).message}`, { cause: error });
+//                     css_provider.load_from_string(styling);
+//                 }
+//                 finally {
+//                     css_provider.disconnect(error_hid);
+//                 }
+//                 if (parsing_error_buffer.size > 0) {
+//                     parsing_error_buffer.forEach((value, key) => {
+//                         const [source, line, ...columns] = key.split(':');
+//                         const identifier = `${widget_class.name}::[${priority}]::${source}`;
+//                         if (all_parsing_errors.has(identifier)) {
+//                             all_parsing_errors.set(identifier, `${all_parsing_errors.get(identifier)}\n ▪ ${line}:${columns} ${value}`);
+//                         }
+//                         else {
+//                             all_parsing_errors.set(identifier, ` ▪ ${line}:${columns} ${value}`);
+//                         }
+//                     });
+//                 }
+//                 Gtk.StyleContext.add_provider_for_display(display, css_provider, priority);
+//             });
+//         } finally {
+//             // Consume styling metadata - prevents reapplication and frees memory
+//             // Subsequent calls to apply() with this class will have no effect
+//             if (!preserve) delete widget_class[STYLING_REGISTRY_COLLECTOR_KEY];
+//         }
+//     }
+// }
 export { Styling, CSSParseError };

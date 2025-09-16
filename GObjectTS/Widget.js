@@ -6,7 +6,7 @@ check_child_collector, delete_child_collector, check_actions_collector, bind_act
 // delete_internal_child_collector
  } from './_Private.js';
 import { DecoratorError } from './Error.js';
-import { css_name_collector } from './_Private.js';
+import { CSS_NAME_COLLECTOR_KEY } from './_Private.js';
 function prepare_err_context(target, decorator_name, error) {
     return {
         class: target.name,
@@ -54,9 +54,9 @@ function Widget(config) {
             construct_metadata.Children = target[child_collector];
             delete_child_collector(target);
         }
-        if (css_name_collector in target) {
-            construct_metadata.CssName = target[css_name_collector];
-            delete target[css_name_collector];
+        if (CSS_NAME_COLLECTOR_KEY in target) {
+            construct_metadata.CssName = target[CSS_NAME_COLLECTOR_KEY];
+            delete target[CSS_NAME_COLLECTOR_KEY];
         }
         // if(check_internal_child_collector(target)) {
         //     construct_metadata.InternalChildren = (target as any)[internal_child_collector];

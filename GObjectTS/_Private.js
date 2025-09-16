@@ -96,6 +96,7 @@ function check_handler_actions_collector(target) {
 }
 export { check_actions_collector, delete_bind_actions_collector, bind_actions_collector, delete_handler_actions_collector, check_handler_actions_collector, handler_actions_collector };
 // Decorator.Styling
-const css_name_collector = Symbol('widget:collector:css-name');
-const styling_registry_collector = Symbol('widget:collector:styling-registry');
-export { css_name_collector, styling_registry_collector };
+const CSS_NAME_COLLECTOR_KEY = Symbol('widget:collector:css-name');
+const STYLING_REGISTRY_COLLECTOR_KEY = Symbol('widget:collector:styling-registry');
+const CSS_DEPENDENCIES_COLLECTOR_KEY = Symbol('widget:collector:css-dependencies');
+export { CSS_NAME_COLLECTOR_KEY, STYLING_REGISTRY_COLLECTOR_KEY, CSS_DEPENDENCIES_COLLECTOR_KEY };

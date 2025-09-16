@@ -115,15 +115,19 @@ declare const handler_actions_collector: unique symbol;
 declare function delete_handler_actions_collector(target: Function): void;
 declare function check_handler_actions_collector(target: Function): boolean;
 export { check_actions_collector, delete_bind_actions_collector, bind_actions_collector, delete_handler_actions_collector, check_handler_actions_collector, handler_actions_collector };
-declare const css_name_collector: unique symbol;
+declare const CSS_NAME_COLLECTOR_KEY: unique symbol;
 interface CssNameCarrier {
-    [css_name_collector]?: string;
+    [CSS_NAME_COLLECTOR_KEY]?: string;
 }
-declare const styling_registry_collector: unique symbol;
+declare const STYLING_REGISTRY_COLLECTOR_KEY: unique symbol;
 interface StylingRegistryCarrier {
-    [styling_registry_collector]?: Map<number, string>;
+    [STYLING_REGISTRY_COLLECTOR_KEY]?: Map<number, string>;
+}
+declare const CSS_DEPENDENCIES_COLLECTOR_KEY: unique symbol;
+interface StylingDependenciesCarrier {
+    [CSS_DEPENDENCIES_COLLECTOR_KEY]?: WidgetConstructor[];
 }
 type WidgetConstructor = new (...args: any[]) => Gtk.Widget;
 type ObjectConstructor = new (...args: any[]) => GObject.Object;
-export { css_name_collector, styling_registry_collector };
-export type { CssNameCarrier, StylingRegistryCarrier, WidgetConstructor, ObjectConstructor };
+export { CSS_NAME_COLLECTOR_KEY, STYLING_REGISTRY_COLLECTOR_KEY, CSS_DEPENDENCIES_COLLECTOR_KEY };
+export type { CssNameCarrier, StylingRegistryCarrier, WidgetConstructor, StylingDependenciesCarrier, ObjectConstructor };

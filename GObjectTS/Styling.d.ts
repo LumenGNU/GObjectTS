@@ -109,6 +109,7 @@ import type { WidgetClassDecorator, WidgetConstructor } from './_Private.js';
  * ~~~ */
 type StylingConfig = {
     CssName?: string;
+    CssDependencies?: WidgetConstructor[];
 } & Record<number, string>;
 /** Specialized error class for CSS parsing failures in widget styling.
  *
@@ -722,6 +723,32 @@ declare const enum StylePriority {
 declare const Styling: {
     (config: StylingConfig): WidgetClassDecorator;
     apply(display: Gdk.Display, ...widget_classes: WidgetConstructor[]): void;
-    applyPreserve(display: Gdk.Display, ...widget_classes: WidgetConstructor[]): void;
 };
+/** Applies collected styling metadata to the specified display without consuming metadata.
+ *
+ * Same as {@link Styling.apply} but preserves styling metadata after application,
+ * allowing multiple applications to different displays or reapplication after
+ * display changes.
+ *
+ * **Use rarely** - typically only needed for:
+ * - Multi-display applications
+ * - Dynamic display switching
+ * - Development/testing scenarios
+ *
+ * @param display - The Gdk.Display to apply styles to
+ * @param widget_classes - Widget classes decorated with @Styling
+ *
+ * @throws {CSSParseError} If CSS parsing fails during style application
+ *
+ * @example Multi-display usage
+ * ~~~typescript
+ * const primaryDisplay = Gdk.Display.get_default();
+ * const secondaryDisplay = getSecondaryDisplay();
+ *
+ * // Apply to both displays, preserving metadata
+ * Styling.applyPreserve(primaryDisplay, MyWidget);
+ * Styling.applyPreserve(secondaryDisplay, MyWidget);
+ * ~~~
+ *
+ * @see {@link Styling.apply} Standard method that consumes metadata */
 export { StylingConfig, StylePriority, Styling, CSSParseError };
