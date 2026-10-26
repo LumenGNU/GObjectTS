@@ -36,7 +36,7 @@ GJS предоставляет только "some widely used standards from the
 *Проблемы с циклическими ссылками виджет ↔ колбек?*
 *Ответ:* Да, постоянно.
 
-**Немного о memory management**:
+### Немного о memory management
 
 GJS — это JavaScript-привязки для GNOME, что означает, что за кулисами происходит два типа управления памятью: отслеживание ссылок (JavaScript) и подсчет ссылок (GObject).
 
@@ -272,6 +272,111 @@ drawingArea.set_draw_func((area, cr, _width, _height) => {
     cr.$dispose();
 });
 ~~~
+
+#### Или, если по простому:
+
+~~~js
+widget.connect('signal', () => {
+    // Поздравляю, ты только что создал утечку памяти!
+    // widget захватил this, this держит widget. И все довольны... кроме памяти
+});
+~~~
+
+
+### Преждевременная сборка GC - когда объект "собрали из-под носа"
+
+Противоположность утечке памяти - когда GC собирает объект который еще нужен, потому что переменная вышла из области видимости, а GC не знает что объект все еще используется через GObject.
+
+Типичный сценарий: обработчик сигнала перестает работать:
+
+~~~typescript
+class GSettingsProvider {
+    private gsettings: Gio.Settings;
+    private settings_schema_id = ...;
+    private settings_key = ...;
+
+    constructor() {
+        this.gsettings = Gio.Settings.new(this.settings_schema_id);
+    }
+
+    // печатать все изменения в настройках в консоль
+    start_monitor() {
+        this.gsettings.connect(`changed::${this.settings_key}`, function(settings, key) {
+            console.log('changed:', settings.get_value(key));
+        });
+        // Активируем мониторинг (особенность GSettings)
+        this.gsettings.get_value(this.settings_key);
+        console.log('Monitoring started');
+    }
+}
+
+// Приложение, использует GSettingsProvider
+class MyApp extends Gio.Application {
+    ...
+    vfunc_startup() {
+        super.vfunc_startup();
+        this.hold();
+
+        // Создали provider в локальной переменной
+        const settings_provider = new GSettingsProvider();
+
+        // Подключили обработчик и начали мониторинг
+        settings_provider.start_monitor();
+
+        // Ожидается, что каждое изменение в настройках будет логироваться в консоли.
+        // Но после одного-двух сообщений логирование прекращается.
+
+        // Почему так произошло:
+        // Функция завершилась → переменная `settings_provider` вышла из области видимости
+        // `this.gsettings.connect` в `start_monitor` не создает ссылку для JS и никаким
+        // образом не препятствует сборке `settings_provider`
+        // → GC собирает объект `settings_provider` через пару циклов
+        // → обработчик перестает работать
+    }
+}
+
+#### Решение:
+
+Хранить ссылку на `settings_provider` все время, пока он нужен. Например, как поле класса:
+
+~~~typescript
+class MyApp extends Gio.Application {
+
+    ...
+
+    private settings_provider!: GSettingsProvider; // храним ссылку
+
+    vfunc_startup() {
+        super.vfunc_startup();
+        this.hold();
+
+        // Создали provider как поле класса
+        this.settings_provider = new GSettingsProvider();
+
+        // Подключили обработчик и начали мониторинг
+        this.settings_provider.start_monitor();
+
+        // Каждое изменение в настройках будет логироваться в консоли.
+    }
+}
+~~~
+
+
+#### Важно понимать:
+
+"Слабое связывание" не защищает от GC.
+
+Методы вроде .connect(), .bind_property(), подключение колбеков и обработчиков не создают "сильных" ссылок с точки зрения JavaScript GC. Для GC это "слабое связывание" - он его игнорирует при принятии решений о сборке мусора.
+
+То есть:
+
+- object.connect('signal', callback) - НЕ защищает object от сборки
+- widget1.bind_property('prop', widget2, 'prop2') - НЕ защищает widget1 от сборки
+- setTimeout(callback, 1000) - НЕ защищает объекты внутри callback от сборки
+
+GC видит только явные ссылки через переменные, поля объектов, элементы массивов и т.п. Все остальное для него "прозрачно".
+
+Если объект должен жить пока активен его обработчик/таймер/источник/binding - убедись что на него есть явная ссылка.
 
 
 ## Event loop и асинхронность
@@ -596,7 +701,8 @@ protected ['my-closure'](self: typeof this, value: string): boolean {
     self.emit('something');  // НЕ ДЕЛАТЬ
     self.get_parent().delete_child(this); // PROFIT! А теперь найди меня 😄
     this.list_store.set_sorter((item_A, item_B) => {
-        this.sort_method(item_A, item_B);
+        // стрелочная функция захватила контекст...
+        this.sort_method(item_A, item_B); // (Ещё больше побочек в сортировщике)
     }) // отправляем контекст в Dark Side на п.м.ж.
     return value.length > 0;
 }
@@ -704,6 +810,37 @@ protected ['format-date'](this: never, self: typeof this, timestamp: number): st
 
 Передавать `user_locale` через `<lookup>` -- тоже, решение. Но зачем?
 
+#### Если еще осталось желание дискутировать:
+
+Closures НЕ равно функции JS/React/etc - это такая абстракция для "подготовь для меня данные - я заберу". Понятное дело что в js - это будет функция, но ее прилепили не в то место. И получилось:
+
+В "нормальных" привязках:
+~~~
+GTK: "подготовь для меня данные - я заберу" ->
+Closure в C/Rust: "вот данные"
+~~~
+
+В GJS:
+~~~
+GTK: "подготовь для меня данные - я заберу" ->
+Closure в GJS (метод класса): "вот данные. А еще я:
+    - изменил this.counter++
+    - запустил this.emit('changed')
+    - добавил setTimeout(...)
+    - обновил this.cache" ->
+GTK: "А КТО ПРОСИЛ?!" 😤 ->
+GJS: "ой, все!" *грохот падающего виджета и свист ~бомбордировщика~ GC
+Closure в GJS: "да, я такая и мне не стыдно. НО код пысал ТЫ!"
+~~~
+
+**Суть**: Closure - это data transformer, не actor.
+
+Transformer: (input) => output - чистая функция
+Actor: (input) => { do_stuff(); emit(); change_state(); return output; } - побочные эффекты
+
+GTK ожидает transformer, но GJS даёт возможность использовать как actor (через this), что чревато проблемами.
+Поэтому this: never - это не "запрет на всё", это "напоминание что ты должен быть transformer, а не actor".
+
 
 ## Типизация (особенности Typescript)
 
@@ -716,3 +853,11 @@ protected ['format-date'](this: never, self: typeof this, timestamp: number): st
 ~~~
 
 и идем дальше в надежде что в новых версиях починят.
+
+
+## Typescript для GJS
+
+- [gjsify/ts-for-gir](https://github.com/gjsify/ts-for-gir/releases/)
+- [Там-же много примеров](https://github.com/gjsify/ts-for-gir/tree/main/examples)
+- [Не много, да и устарело](https://gjs.guide/extensions/development/typescript.html)
+- [Мои потуги...](https://github.com/LumenGNU/GObjectTS)

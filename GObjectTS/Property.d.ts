@@ -61,3 +61,6 @@ declare namespace Property {
 }
 export { Property };
 export declare const ParamFlags: typeof GObject.ParamFlags;
+export type ParamFlags = GObject.ParamFlags;
+export declare const ParamSpec: typeof GObject.ParamSpec;
+export type ParamSpec = GObject.ParamSpec;

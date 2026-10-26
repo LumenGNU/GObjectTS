@@ -5,7 +5,6 @@
     "allowUnreachableCode": false,
     "allowJs": false,
     "alwaysStrict": true,
-    "downlevelIteration": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "lib": [

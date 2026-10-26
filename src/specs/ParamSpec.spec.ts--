@@ -1,0 +1,865 @@
+#!/usr/bin/env -S jasmine --verbose --module
+/** @file: src/Ljs/GObjectTS/specs/ParamSpec.spec.ts */
+/** @fileoverview: Тесты для GObjectTS/ParamSpec.ts */
+/** @license: https://www.gnu.org/licenses/gpl.txt */
+/** @version: 3.0.0 */
+/** @changelog ... */
+
+/// <reference types="jasmine" />
+
+import GObject from 'gi://GObject?version=2.0';
+import {
+    boolean_metadata,
+    boolean_param_spec,
+    boxed_metadata,
+    boxed_param_spec,
+    CanonicalName,
+    char_metadata,
+    char_param_spec,
+    double_metadata,
+    double_param_spec,
+    enum_metadata,
+    enum_param_spec,
+    flags_metadata,
+    flags_param_spec,
+    float_metadata,
+    float_param_spec,
+    gtype_metadata,
+    gtype_param_spec,
+    int64_metadata,
+    int64_param_spec,
+    int_metadata,
+    int_param_spec,
+    jsobject_metadata,
+    jsobject_param_spec,
+    long_metadata,
+    long_param_spec,
+    object_metadata,
+    object_param_spec,
+    override_metadata,
+    override_param_spec,
+    param_metadata,
+    param_param_spec,
+    pointer_metadata,
+    pointer_param_spec,
+    string_metadata,
+    string_param_spec,
+    to_canonical_name,
+    uchar_metadata,
+    uchar_param_spec,
+    uint64_metadata,
+    uint64_param_spec,
+    uint_metadata,
+    uint_param_spec,
+    ulong_metadata,
+    ulong_param_spec,
+    unichar_metadata,
+    unichar_param_spec,
+} from '../Decorator.Property.ParamSpec.js';
+
+import {
+    variant_metadata,
+    variant_param_spec
+} from '../Decorator.Property.ParamSpec.GLib.js';
+import Adw from 'gi://Adw?version=1';
+import Gtk from 'gi://Gtk?version=4.0';
+import GLib from 'gi://GLib?version=2.0';
+import Gio from 'gi://Gio?version=2.0';
+
+const trivial_types = {
+    boolean: {
+        metadata: boolean_metadata,
+        param_spec: boolean_param_spec,
+        default_: false
+    },
+    string: {
+        metadata: string_metadata,
+        param_spec: string_param_spec,
+        default_: null
+    },
+    unichar: {
+        metadata: unichar_metadata,
+        param_spec: unichar_param_spec,
+        default_: '\0'
+    },
+};
+
+const special_types = {
+    variant: {
+        metadata: variant_metadata,
+        param_spec: variant_param_spec,
+    },
+    override: {
+        metadata: override_metadata,
+        param_spec: override_param_spec,
+    },
+};
+
+const numeric_types = {
+    char: {
+        metadata: char_metadata,
+        param_spec: char_param_spec,
+        def: 0, min: GLib.MININT8, max: GLib.MAXINT8,
+    },
+    uchar: {
+        metadata: uchar_metadata,
+        param_spec: uchar_param_spec,
+        def: 0, min: 0, max: GLib.MAXUINT8,
+    },
+    int: {
+        metadata: int_metadata,
+        param_spec: int_param_spec,
+        def: 0, min: GLib.MININT32, max: GLib.MAXINT32,
+    },
+    uint: {
+        metadata: uint_metadata,
+        param_spec: uint_param_spec,
+        def: 0, min: 0, max: GLib.MAXUINT32,
+    },
+    long: {
+        metadata: long_metadata,
+        param_spec: long_param_spec,
+        def: 0, min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER,
+    },
+    ulong: {
+        metadata: ulong_metadata,
+        param_spec: ulong_param_spec,
+        def: 0, min: 0, max: Number.MAX_SAFE_INTEGER,
+    },
+    int64: {
+        metadata: int64_metadata,
+        param_spec: int64_param_spec,
+        def: 0, min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER
+    },
+    uint64: {
+        metadata: uint64_metadata,
+        param_spec: uint64_param_spec,
+        def: 0, min: 0, max: Number.MAX_SAFE_INTEGER
+    },
+    float: {
+        metadata: float_metadata,
+        param_spec: float_param_spec,
+        def: 0, min: -3.4028234663852886e+38, max: 3.4028234663852886e+38
+    },
+    double: {
+        metadata: double_metadata,
+        param_spec: double_param_spec,
+        def: 0, min: -Number.MAX_VALUE, max: Number.MAX_VALUE
+    }
+};
+
+const gtype_types = {
+    boxed: {
+        metadata: boxed_metadata,
+        param_spec: boxed_param_spec,
+    },
+    param: {
+        metadata: param_metadata,
+        param_spec: param_param_spec,
+    },
+    object: {
+        metadata: object_metadata,
+        param_spec: object_param_spec,
+    },
+    gtype: {
+        metadata: gtype_metadata,
+        param_spec: gtype_param_spec,
+    }
+};
+
+const typed_numeric_types = {
+    flags: {
+        metadata: flags_metadata,
+        param_spec: flags_param_spec,
+    },
+    enum: {
+        metadata: enum_metadata,
+        param_spec: enum_param_spec,
+    },
+};
+
+const without_param_types = {
+    pointer: {
+        metadata: pointer_metadata,
+        param_spec: pointer_param_spec,
+    },
+    jsobject: {
+        metadata: jsobject_metadata,
+        param_spec: jsobject_param_spec,
+    },
+};
+
+describe('ParamSpec Helpers: ', () => {
+
+    // =============================================================================
+    // to_kebab_case
+    // =============================================================================
+    describe('to_canonical_name', () => {
+        it('правильно преобразует допустимые литеральные имена в каноничную форму', () => {
+            [
+                { input: 'myProperty', expected: 'my-property' },
+                { input: 'userName', expected: 'user-name' },
+                { input: 'getElementById', expected: 'get-element-by-id' },
+
+                // snake_case
+                { input: 'my_property', expected: 'my-property' },
+                { input: 'user_name', expected: 'user-name' },
+                { input: 'get_element_by_id', expected: 'get-element-by-id' },
+
+                // PascalCase
+                { input: 'MyProperty', expected: 'my-property' },
+                { input: 'UserName', expected: 'user-name' },
+                { input: 'XMLHttpRequest', expected: 'xml-http-request' },
+
+                // Смешанные стили
+                { input: 'my_propertyName', expected: 'my-property-name' },
+                { input: 'myProperty_name', expected: 'my-property-name' },
+                { input: 'My_Property_Name', expected: 'my-property-name' },
+
+                // Акронимы
+                { input: 'XMLHttpRequest', expected: 'xml-http-request' },
+                { input: 'HTTPSProxy', expected: 'https-proxy' },
+                { input: 'XMLParser', expected: 'xml-parser' },
+                { input: 'HTML5Element', expected: 'html5-element' },
+
+                // Уже kebab-case
+                { input: 'my-property', expected: 'my-property' },
+                { input: 'user-name', expected: 'user-name' },
+
+                // Граничные случаи
+                { input: 'a', expected: 'a' },
+                { input: 'A', expected: 'a' },
+                { input: 'aB', expected: 'a-b' },
+                { input: '_private', expected: 'private' },
+                { input: 'private_', expected: 'private' },
+                { input: '__double__', expected: 'double' },
+                { input: 'multi--dash', expected: 'multi-dash' },
+            ].forEach(({ input, expected }) => {
+                expect(
+                    to_canonical_name(input)
+                ).withContext('будет правильно преобразовано').toBe(expected);
+            });
+        });
+    });
+
+    describe('***_metadata:', () => {
+
+        describe('Правильно создают метаданные из пустых параметров, если возможно:', () => {
+
+            // тривиальные типы
+            Object.entries(trivial_types).forEach(([type_name, test_data]) => {
+                describe(`Для тривиального типа "${type_name}" при создании`, () => {
+
+                    let default_metadata = undefined as any;
+
+                    beforeEach(() => {
+                        default_metadata = {
+                            type: type_name,
+                            params: {
+                                canonical_name: 'param',
+                                nick: null,
+                                blurb: null,
+                                flags: GObject.ParamFlags.READWRITE,
+                                default_value: test_data.default_
+                            } as any
+                        };
+                    });
+
+                    describe('без параметров:', () => {
+                        it('будут построены правильные метаданные, со значением по умолчанию', () => {
+                            expect(test_data.metadata('param' as CanonicalName, []))
+                                .toEqual(default_metadata);
+                        });
+                    });
+
+                    describe('с пустой конфигурация:', () => {
+                        it('будут построены правильные метаданные, со значением по умолчанию', () => {
+                            expect(test_data.metadata('param' as CanonicalName, [{}]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('если передан undefined:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+                });
+            });
+
+            Object.entries(special_types).forEach(([type_name, test_data]) => {
+                describe(`Для специального типа "${type_name}" при создании`, () => {
+                    describe('без параметров:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('с пустой конфигурация:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [{}] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('если передан undefined:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+                });
+            });
+
+            Object.entries(numeric_types).forEach(([type_name, test_data]) => {
+                describe(`Для числового типа "${type_name}" при создании`, () => {
+
+                    let default_metadata = undefined as any;
+
+                    beforeEach(() => {
+                        default_metadata = {
+                            type: type_name,
+                            params: {
+                                canonical_name: 'param',
+                                nick: null,
+                                blurb: null,
+                                flags: GObject.ParamFlags.READWRITE,
+                                default_value: test_data.def,
+                                minimum: test_data.min,
+                                maximum: test_data.max,
+                            }
+                        };
+                    });
+
+                    describe('без параметров:', () => {
+                        it('будут построены метаданные со значениями по умолчанию', () => {
+                            expect(test_data.metadata('param' as CanonicalName, []))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('с пустой конфигурация:', () => {
+                        it('будут построены метаданные со значениями по умолчанию', () => {
+                            expect(test_data.metadata('param' as CanonicalName, [{}]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('если передан undefined:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+
+                    describe('с одним параметром:', () => {
+                        it('параметр будет применен как default_value, границы будут по умолчанию', () => {
+                            const init_val = 42;
+                            default_metadata.params.default_value = init_val;
+                            expect(test_data.metadata('param' as CanonicalName, [init_val]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('c указанием default_value в конфигурации:', () => {
+                        it('параметр будет применен как default_value, границы будут по умолчанию', () => {
+                            const init_val = 42;
+                            default_metadata.params.default_value = init_val;
+                            expect(test_data.metadata('param' as CanonicalName, [{ default_value: init_val }]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+
+                    describe('с тремя параметрами:', () => {
+                        it('параметры будут применены как default_value и min-max границы', () => {
+                            const init_val = 42;
+                            const init_min = 1;
+                            const init_max = 100;
+                            default_metadata.params.default_value = init_val;
+                            default_metadata.params.minimum = init_min;
+                            default_metadata.params.maximum = init_max;
+                            expect(test_data.metadata('param' as CanonicalName, [init_val, init_min, init_max]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('c указанием default_value, minimum и maximum в конфигурации:', () => {
+                        it('параметр будет применен как default_value, границы будут соответствовать указанным', () => {
+                            const init_val = 42;
+                            const init_min = 1;
+                            const init_max = 100;
+                            default_metadata.params.default_value = init_val;
+                            default_metadata.params.minimum = init_min;
+                            default_metadata.params.maximum = init_max;
+                            expect(test_data.metadata('param' as CanonicalName, [{ default_value: init_val, maximum: init_max, minimum: init_min }]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('c указанием только флагов и метаданных в конфигурации:', () => {
+                        it('метаданные применяются, default_value и границы будут по умолчанию', () => {
+                            const nick = 'nick';
+                            const blurb = 'blurb';
+                            const flags = GObject.ParamFlags.DEPRECATED;
+                            default_metadata.params.nick = nick;
+                            default_metadata.params.blurb = blurb;
+                            default_metadata.params.flags = flags;
+                            expect(test_data.metadata('param' as CanonicalName, [{ nick: nick, blurb: blurb, flags: flags }]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('c указанием полной настройки в конфигурации:', () => {
+                        it('метаданные применяются, default_value и границы будут соответствовать указанным', () => {
+                            const init_val = 42;
+                            const init_min = 1;
+                            const init_max = 100;
+                            const nick = 'nick';
+                            const blurb = 'blurb';
+                            const flags = GObject.ParamFlags.DEPRECATED;
+                            default_metadata.params.nick = nick;
+                            default_metadata.params.blurb = blurb;
+                            default_metadata.params.flags = flags;
+                            default_metadata.params.default_value = init_val;
+                            default_metadata.params.minimum = init_min;
+                            default_metadata.params.maximum = init_max;
+                            expect(test_data.metadata('param' as CanonicalName, [{ nick: nick, blurb: blurb, flags: flags, default_value: init_val, maximum: init_max, minimum: init_min }]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                });
+            });
+
+            Object.entries(gtype_types).forEach(([type_name, test_data]) => {
+                describe(`Для GType типа "${type_name}" при создании`, () => {
+
+                    describe('без параметров:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('с пустой конфигурация:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [{}] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('если передан undefined:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+                });
+            });
+
+            Object.entries(typed_numeric_types).forEach(([type_name, test_data]) => {
+                describe(`Для GType типа "${type_name}" требующего начальное значение, при создании`, () => {
+
+                    describe('без параметров:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('с пустой конфигурация:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, [{}] as any); })
+                                .toThrow();
+                        });
+                    });
+                    describe('если передан undefined:', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+                });
+            });
+
+            Object.entries(without_param_types).forEach(([type_name, test_data]) => {
+                describe(`Для типа "${type_name}", не требующего параметр, при создании`, () => {
+
+                    let default_metadata = undefined as any;
+
+                    beforeEach(() => {
+                        default_metadata = {
+                            type: type_name,
+                            params: {
+                                canonical_name: 'param',
+                                nick: null,
+                                blurb: null,
+                                flags: GObject.ParamFlags.READWRITE,
+                            }
+                        };
+                    });
+
+                    describe('без параметров:', () => {
+                        it('будут построены правильные метаданные', () => {
+                            expect(test_data.metadata('param' as CanonicalName, []))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('с пустой конфигурация', () => {
+                        it('Будут построены правильные метаданные', () => {
+                            expect(test_data.metadata('param' as CanonicalName, [{}]))
+                                .toEqual(default_metadata);
+                        });
+                    });
+                    describe('если передан undefined', () => {
+                        it('будет ошибка', () => {
+                            expect(() => { test_data.metadata('param' as CanonicalName, undefined as any); })
+                                .toThrow();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+
+    describe('***_param_spec:', () => {
+
+        describe('Все генерируют ошибку при создании с недопустимым именем параметра.', () => {
+            const all_specs = new Map();
+            Object.entries(trivial_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+            Object.entries(special_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+            Object.entries(numeric_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+            Object.entries(gtype_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+            Object.entries(typed_numeric_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+            Object.entries(without_param_types).forEach(([type_name, test_data]) => {
+                all_specs.set(type_name, test_data.param_spec);
+            });
+
+            all_specs.forEach((param_spec, type_name) => {
+                describe(`Для типа "${type_name}":`, () => {
+                    it('будет ошибка', () => {
+                        expect(() => { param_spec('@@@' as CanonicalName); })
+                            .toThrow();
+                    });
+                });
+            });
+        });
+
+        describe('Возвращают GParamSpec правильного типа (при создании только с обязательными параметрами).', () => {
+
+            describe('Для тривиальных типов:', () => {
+                it('для boolean будет "gboolean"', () => {
+                    expect(
+                        trivial_types.boolean.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gboolean');
+                });
+                it('для string будет "gchararray"', () => {
+                    expect(
+                        trivial_types.string.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gchararray');
+                });
+                it('для unichar будет "guint"', () => {
+                    expect(
+                        trivial_types.unichar.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('guint');
+                });
+
+            });
+
+            describe('Для специальных типов:', () => {
+                it('для variant будет "GVariant"', () => {
+                    expect(
+                        special_types.variant.param_spec(to_canonical_name('p-name'), [GLib.VariantType.new('s')]).value_type.name
+                    ).toBe('GVariant');
+                });
+                it('для override будет наследовать тип', () => {
+                    expect(
+                        special_types.override.param_spec(to_canonical_name('label'), [Gtk.Label.$gtype]).value_type.name
+                    ).toBe('gchararray');
+
+                    expect(
+                        special_types.override.param_spec(to_canonical_name('orientation'), [Gtk.Orientable.$gtype]).value_type.name
+                    ).toBe('GtkOrientation');
+                });
+            });
+
+            describe('Для числовых типов:', () => {
+                it('для char будет "gchar"', () => {
+                    expect(
+                        numeric_types.char.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gchar');
+                });
+                it('для uchar будет "guchar"', () => {
+                    expect(
+                        numeric_types.uchar.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('guchar');
+                });
+                it('для int будет "gint"', () => {
+                    expect(
+                        numeric_types.int.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gint');
+                });
+                it('для uint будет "guint"', () => {
+                    expect(
+                        numeric_types.uint.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('guint');
+                });
+                it('для long будет "glong"', () => {
+                    expect(
+                        numeric_types.long.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('glong');
+                });
+                it('для ulong будет "gulong"', () => {
+                    expect(
+                        numeric_types.ulong.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gulong');
+                });
+                it('для int64 будет "gint64"', () => {
+                    expect(
+                        numeric_types.int64.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gint64');
+                });
+                it('для uint64 будет "guint64"', () => {
+                    expect(
+                        numeric_types.uint64.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('guint64');
+                });
+                it('для float будет "gfloat"', () => {
+                    expect(
+                        numeric_types.float.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gfloat');
+                });
+                it('для double будет "gdouble"', () => {
+                    expect(
+                        numeric_types.double.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gdouble');
+                });
+            });
+
+            describe('Для типизированных типов:', () => {
+                it('для boxed будет иметь коробочного объекта', () => {
+                    expect(
+                        gtype_types.boxed.param_spec(to_canonical_name('p-name'), [GLib.DateTime.$gtype]).value_type.name
+                    ).toBe('GDateTime');
+                    expect(
+                        gtype_types.boxed.param_spec(to_canonical_name('p-name'), [Adw.SpringParams.$gtype]).value_type.name
+                    ).toBe('AdwSpringParams');
+                    expect(
+                        gtype_types.boxed.param_spec(to_canonical_name('p-name'), [Gtk.PaperSize.$gtype]).value_type.name
+                    ).toBe('GtkPaperSize');
+                });
+                it('для gtype будет "GType"', () => {
+                    expect(
+                        gtype_types.gtype.param_spec(to_canonical_name('p-name'), [GLib.DateTime.$gtype]).value_type.name
+                    ).toBe('GType');
+                    expect(
+                        gtype_types.gtype.param_spec(to_canonical_name('p-name'), [Gtk.Widget.$gtype]).value_type.name
+                    ).toBe('GType');
+                    expect(
+                        gtype_types.gtype.param_spec(to_canonical_name('p-name'), [Gtk.Orientable.$gtype]).value_type.name
+                    ).toBe('GType');
+                });
+                it('для object будет иметь тип объекта', () => {
+                    expect(
+                        gtype_types.object.param_spec(to_canonical_name('p-name'), [Gtk.StringList.$gtype]).value_type.name
+                    ).toBe('GtkStringList');
+                    expect(
+                        gtype_types.object.param_spec(to_canonical_name('p-name'), [Gtk.Widget.$gtype]).value_type.name
+                    ).toBe('GtkWidget');
+                    expect(
+                        gtype_types.object.param_spec(to_canonical_name('p-name'), [Gtk.Button.$gtype]).value_type.name
+                    ).toBe('GtkButton');
+                    // expect(
+                    //     gtype_types.object.param_spec(to_canonical_name('p-name'), [Gtk.Orientable.$gtype]).value_type.name
+                    // ).toBe('GType');
+                });
+                it('для param будет "GParam"', () => {
+                    expect(
+                        gtype_types.param.param_spec(to_canonical_name('p-name'), [GObject.ParamSpec.$gtype]).value_type.name
+                    ).toBe('GParam');
+                });
+            });
+
+            describe('Для типизированных числовых значений:', () => {
+                it('для flags будет иметь тип флагов', () => {
+                    expect(
+                        typed_numeric_types.flags.param_spec(to_canonical_name('p-name'), [GObject.BindingFlags.$gtype]).value_type.name
+                    ).toBe('GBindingFlags');
+                });
+                it('для enum будет иметь тип перечисления', () => {
+                    expect(
+                        typed_numeric_types.enum.param_spec(to_canonical_name('p-name'), [Gtk.Orientation.$gtype]).value_type.name
+                    ).toBe('GtkOrientation');
+                });
+            });
+
+            describe('Для для тех, что не принимают параметры:', () => {
+                it('для pointer будет "gpointer"', () => {
+                    expect(
+                        without_param_types.pointer.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('gpointer');
+                });
+                it('для jsobject будет "JSObject"', () => {
+                    expect(
+                        without_param_types.jsobject.param_spec(to_canonical_name('p-name'), []).value_type.name
+                    ).toBe('JSObject');
+                });
+            });
+
+        });
+
+        describe('Генерируют ошибку если получают не правильные параметры (там где TS type guard не поможет).', () => {
+
+            it('variant_param_spec генерирует ошибку для неправильного GLib.VariantType', () => {
+
+                expect(() => { variant_param_spec(to_canonical_name('p-name'), [GLib.VariantType.new('blah!')]); })
+                    .toThrow();
+
+                expect(() => { variant_param_spec(to_canonical_name('p-name'), [{ variant_type: GLib.VariantType.new('blah!') }]); })
+                    .toThrow();
+
+            });
+
+            it('override_param_spec генерирует ошибку для не интерфейсов и не классов', () => {
+
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [GObject.TYPE_INTERFACE]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [{ source_type: GObject.TYPE_INTERFACE }]);
+                }).toThrow();
+
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [GObject.TYPE_OBJECT]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [{ source_type: GObject.TYPE_INTERFACE }]);
+                }).toThrow();
+
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [GLib.VariantType.$gtype]); // структура не класс
+                }).toThrow();
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [{ source_type: GLib.VariantType.$gtype }]); // структура не класс
+                }).toThrow();
+
+            });
+
+            it('override_param_spec генерирует ошибку при проблемах в Gi.override_property', () => {
+
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [Gtk.Label.$gtype]); // нет такого свойства
+                }).toThrow();
+                expect(() => {
+                    override_param_spec(to_canonical_name('p-name'), [{ source_type: Gtk.Label.$gtype }]); // нет такого свойства
+                }).toThrow();
+
+            });
+
+            it('boxed_param_spec генерирует ошибку для не коробочных типов', () => {
+
+                expect(() => {
+                    boxed_param_spec(to_canonical_name('p-name'), [GObject.TYPE_BOXED]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    boxed_param_spec(to_canonical_name('p-name'), [{ g_type: GObject.TYPE_BOXED }]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    boxed_param_spec(to_canonical_name('p-name'), [Gtk.Widget.$gtype]);
+                }).toThrow();
+                expect(() => {
+                    boxed_param_spec(to_canonical_name('p-name'), [{ g_type: Gtk.Widget.$gtype }]);
+                }).toThrow();
+            });
+
+            it('param_param_spec генерирует ошибку для не параметров', () => {
+
+                // expect(() => { // @fixme я х.з.
+                //     param_param_spec(to_canonical_name('p-name'), [GObject.TYPE_PARAM]);
+                // }).toThrow();
+                // expect(() => {
+                //     param_param_spec(to_canonical_name('p-name'), [{ g_type: GObject.TYPE_PARAM }]);
+                // }).toThrow();
+                expect(() => {
+                    param_param_spec(to_canonical_name('p-name'), [Gtk.Widget.$gtype]);
+                }).toThrow();
+                expect(() => {
+                    param_param_spec(to_canonical_name('p-name'), [{ g_type: Gtk.Widget.$gtype }]);
+                }).toThrow();
+
+            });
+
+            it('object_param_spec генерирует ошибку для не типов', () => {
+
+                expect(() => {
+                    object_param_spec(to_canonical_name('p-name'), [GObject.TYPE_OBJECT]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    object_param_spec(to_canonical_name('p-name'), [{ g_type: GObject.TYPE_OBJECT }]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    object_param_spec(to_canonical_name('p-name'), [Gtk.PaperSize.$gtype]);
+                }).toThrow();
+                expect(() => {
+                    object_param_spec(to_canonical_name('p-name'), [{ g_type: Gtk.PaperSize.$gtype }]);
+                }).toThrow();
+            });
+
+            it('flags_param_spec генерирует ошибку для не флагов', () => {
+                expect(() => {
+                    flags_param_spec(to_canonical_name('p-name'), [GObject.TYPE_FLAGS]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    flags_param_spec(to_canonical_name('p-name'), [{ g_type: GObject.TYPE_FLAGS }]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    flags_param_spec(to_canonical_name('p-name'), [Gtk.Orientation.$gtype]);
+                }).toThrow();
+                expect(() => {
+                    flags_param_spec(to_canonical_name('p-name'), [{ g_type: Gtk.Orientation.$gtype }]);
+                }).toThrow();
+            });
+
+            it('enum_param_spec генерирует ошибку для не перечислений', () => {
+                expect(() => {
+                    enum_param_spec(to_canonical_name('p-name'), [GObject.TYPE_ENUM]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    enum_param_spec(to_canonical_name('p-name'), [{ g_type: GObject.TYPE_ENUM }]); // абстракт
+                }).toThrow();
+                expect(() => {
+                    enum_param_spec(to_canonical_name('p-name'), [Gtk.PickFlags.$gtype]);
+                }).toThrow();
+                expect(() => {
+                    enum_param_spec(to_canonical_name('p-name'), [{ g_type: Gtk.PickFlags.$gtype }]);
+                }).toThrow();
+            });
+
+        });
+
+        describe('Все числовые спеки воспринимают параметры как [def, min, max]:', () => {
+            Object.entries(numeric_types).forEach(([type_name, test_data]) => {
+                it(type_name, () => {
+                    expect(test_data.param_spec(to_canonical_name('n-name'), [2, 1, 3])).not.toBeNull();
+                });
+
+            });
+        });
+
+        describe('НЕ возвращают null, генерируют ошибку если спека не была создана.', () => {
+            describe('Все числовые спеки проверяют результат param_spec_**:', () => {
+                Object.entries(numeric_types).forEach(([type_name, test_data]) => {
+                    it(type_name, () => {
+                        expect(() => {
+                            test_data.param_spec(to_canonical_name('n-name'), [3, 1, 2]); // попытка создать с неправильными границами
+                        }).toThrow();
+                    });
+
+                });
+            });
+        });
+
+    });
+
+
+});

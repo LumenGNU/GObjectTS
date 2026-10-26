@@ -1,0 +1,21 @@
+
+.top-bar, .bottom-bar {
+    background-color: @green_1;
+}
+
+.bottom-bar .status-label {
+    padding: 12px 6px;
+}
+
+toolbarview {
+    background-image: linear-gradient(@green_1 3px, transparent 3px),
+                        linear-gradient(90deg, @green_1 3px, transparent 3px),
+                        linear-gradient(@green_1 2px, transparent 2px),
+                        linear-gradient(90deg, @green_2 2px, @window_bg_color 2px);
+    background-size: 115px 115px, 115px 115px, 23px 23px, 23px 23px;
+    background-position: -3px -3px, -3px -3px, -2px -2px, -2px -2px;
+}
+
+.content {
+    background-color: @green_1;
+}

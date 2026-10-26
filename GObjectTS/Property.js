@@ -1032,3 +1032,4 @@ Property.UniChar = function (...spec_params) {
 Property.key_to_canonical_name = to_canonical_name;
 export { Property };
 export const ParamFlags = GObject.ParamFlags;
+export const ParamSpec = GObject.ParamSpec;
