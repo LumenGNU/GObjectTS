@@ -170,7 +170,7 @@ class HelloWorldApplication extends Adw.Application {
     constructor(constructor_props?: Partial<Adw.Application.ConstructorProps>) {
         super(constructor_props);
 
-        const resource = Gio.Resource.load(`${GLib.get_current_dir()}/src/Ljs/GObjectTS/examples/Styling.Hello-word/resources.gresource`);
+        const resource = Gio.Resource.load(Gio.File.new_for_uri(import.meta.url).get_parent()!.get_child('resources.gresource').get_path()!);
         Gio.resources_register(resource);
     }
 
