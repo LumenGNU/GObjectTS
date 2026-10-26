@@ -14,7 +14,7 @@
     "@girs/gobject-2.0": "5.5.0",
     "@girs/gtk-4.0": "5.5.0",
     "@girs/pango-1.0": "5.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "~6.0.3"
   },
   "scripts": {
     "build": "npx -- tsc",
