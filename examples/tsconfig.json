@@ -5,7 +5,6 @@
     "allowUnreachableCode": false,
     "allowJs": false,
     "alwaysStrict": true,
-    "downlevelIteration": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "lib": [
@@ -27,7 +26,6 @@
     "target": "ES2022",
     "rootDir": "./",
     "outDir": "./",
-    "baseUrl": "./",
     "paths": {
       "GObjectTS/*": ["../GObjectTS/*"]
     },
