@@ -32,7 +32,7 @@ function Interface(config?: ClassConfig & { Requires: { $gtype: GObject.GType; }
         }
 
         try {
-            const registered_class = GObject.registerClass(construct_metadata, target as any);
+            const registered_class = GObject.registerClass(construct_metadata as GObject.MetaInfo<any, any, any>, target as any);
 
             // @todo интересно - GObject.registerClass добавляет свои символы в прототип, что в них? они нужны?
             // почему не удаляет?

@@ -1,5 +1,5 @@
 import GObject from 'gi://GObject?version=2.0';
-import { ClassConfig, ClassDecorator } from './_Private.js';
+import { ClassConfig, ClassDecorator, ObjectConstructor } from './_Private.js';
 import Gtk from 'gi://Gtk?version=4.0';
 /** Интерфейс для работы с GTK виджетами.
  *
@@ -21,7 +21,7 @@ import Gtk from 'gi://Gtk?version=4.0';
  */
 declare function Widget(config?: ClassConfig | string): ClassDecorator<Gtk.WidgetClass>;
 declare namespace Widget {
-    var Template: (XML: string) => (target: Gtk.WidgetClass & GObject.ObjectConstructor) => void;
+    var Template: (XML: string) => (target: Gtk.WidgetClass & ObjectConstructor) => void;
 }
 /** Пространство имён для декораторов связывающих свойства класса с
  * элементами из XML/Blueprint шаблона виджета.

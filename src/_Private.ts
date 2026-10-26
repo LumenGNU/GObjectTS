@@ -6,7 +6,7 @@ import type Gtk from "gi://Gtk?version=4.0";
  *
  * Обеспечивает типобезопасность при описании декораторов классов, гарантируя
  * что декоратор применяется только к классам порождающим `GObject.Object` (
- * смотри {@link GObject.ObjectConstructor}).
+ * смотри {@link ObjectConstructor}).
  *
  * Позволяет TypeScript проверять совместимость на этапе компиляции.
  *
@@ -17,7 +17,7 @@ import type Gtk from "gi://Gtk?version=4.0";
  * @template Target Позволяет сузить область применения декоратора до
  *   необходимого класса. Например:
  *   `ClassDecorator<Gtk.WidgetClass>` -- только для Gtk классов-виджетов. */
-export type ClassDecorator<Target = never> = (target: Target & GObject.ObjectConstructor) => void;
+export type ClassDecorator<Target = never> = (target: Target & ObjectConstructor) => void;
 
 
 

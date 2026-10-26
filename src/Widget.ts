@@ -4,6 +4,7 @@ import {
     check_template_collector,
     ClassConfig,
     ClassDecorator,
+    ObjectConstructor,
     delete_property_collector,
     delete_signals_collector,
     delete_template_collector,
@@ -30,7 +31,7 @@ import GLib from 'gi://GLib?version=2.0';
 import { CSS_NAME_COLLECTOR_KEY } from './_Private.js';
 
 
-function prepare_err_context(target: GObject.ObjectConstructor, decorator_name: string, error: any): ErrObj {
+function prepare_err_context(target: ObjectConstructor, decorator_name: string, error: any): ErrObj {
     return {
         class: target.name,
         decorator: decorator_name,
@@ -60,7 +61,7 @@ function Widget(config?: ClassConfig | string): ClassDecorator<Gtk.WidgetClass> 
 
     const construct_metadata: any /* // @todo GObject.MetaInfo<> */ = (config === undefined) ? {} : (typeof config === 'string') ? { GTypeName: config } : config;
 
-    return function (target: Gtk.WidgetClass & GObject.ObjectConstructor) {
+    return function (target: Gtk.WidgetClass & ObjectConstructor) {
 
         // @todo checks
 
@@ -98,7 +99,7 @@ function Widget(config?: ClassConfig | string): ClassDecorator<Gtk.WidgetClass> 
         // }
 
         try {
-            const registered_class = GObject.registerClass(construct_metadata, target);
+            const registered_class = GObject.registerClass(construct_metadata, target) as unknown as typeof Gtk.Widget;
 
             // @todo интересно - GObject.registerClass добавляет свои символы в прототип, что в них? они нужны?
             // почему не удаляет?
@@ -182,7 +183,7 @@ function Widget(config?: ClassConfig | string): ClassDecorator<Gtk.WidgetClass> 
  * @affects Автоматически связывает элементы шаблона со свойствами класса.
  */
 Widget.Template = function (XML: string) {
-    return function (target: Gtk.WidgetClass & GObject.ObjectConstructor) {
+    return function (target: Gtk.WidgetClass & ObjectConstructor) {
         if (check_template_collector(target)) {
             throw new DecoratorError(prepare_err_context(target, '@Widget.Template.XML.FromString', { message: 'Template already defined' }));
         } else {
