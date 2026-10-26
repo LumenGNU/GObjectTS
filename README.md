@@ -125,6 +125,8 @@ Since this is **syntactic sugar** over standard [`GObject.registerClass()`](http
 
 ## TypeScript Setup
 
+To use the library in your own project without publishing a package (symlink + tsconfig), see [USING.md](USING.md).
+
 
 ### Requirements
 
